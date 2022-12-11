@@ -14,11 +14,44 @@ module.exports = (function(){
 	let scene;
 	let vorldController = null;
 
+	let vorld = null;
+	let initialGenerationComplete = false;
+
 	let start = () => {
 		GameLoop.start();
+		let generationConfig =  { bounds: {
+				iMin: -2, iMax: 2,
+				jMin: -1, jMax: 1,
+				kMin: -2, kMax: 2
+			} };
+		vorld = vorldController.createWorld(
+			generationConfig,
+			() => {
+				initialGenerationComplete = true;
+				console.log("World generation complete");
+			},
+			(stage, count, total) => { /* progress! */ });
 	};
 
+	let hasAddedLevelDetails = false;
 	let loop = (elapsed) => {
+		if (initialGenerationComplete && !hasAddedLevelDetails) {
+			// TODO: consider making a custom vorld-worker file, which has options for custom generation logic 
+			// so we can to this as part of the generation stage rather than after initial generation is complete 
+			hasAddedLevelDetails = true;
+			vorldController.startBatchUpdate();
+			let zMin = -2 * 16, zMax = 2 * 16 - 1, xMin = -2 * 16, xMax = 2 * 16 - 1;
+			for (let y = 0; y < 4; y++) {
+				for (let z = zMin; z <= zMax; z++) {
+					for (let x = xMin; x <= xMax; x++) {
+						if (x == xMin || x == xMax || z == zMin || z == zMax) {
+							vorldController.addBlock(vorld, x, y, z, config.blockIds["cobblestone"]);
+						}
+					}
+				}
+			}
+			vorldController.finishBatchUpdate(vorld, () => { console.log("Added walls?") });
+		}
 		// TODO: Run some logic!
 		scene.render();
 	}

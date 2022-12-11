@@ -208,7 +208,7 @@
 					"conditions": [ "blockValue", "yMax" ],
 					"block": "blockIds.air",
 					"yMax": -1,
-					"targetBlock": "blockIds.grass"
+					"targetBlock": "blockIds.snow"
 				}
 			]
 		},
