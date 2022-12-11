@@ -138,6 +138,11 @@ module.exports = (function(){
 
 		scene = Fury.Scene.create({ camera: camera });
 
+		Audio.createMixer("ui", 1, Audio.mixers.master);
+		Audio.createMixer("sfx", 0.5, Audio.mixers.master);
+		Audio.createMixer("sfx/footsteps", 0.25, Audio.mixers["sfx"]);
+		Audio.createMixer("bgm", 0.25, Audio.mixers.master);
+
 		GameLoop.init({ loop: loop, maxFrameTimeMs: 66 });
 		loadAssets(gameConfig, start);
 	};
@@ -166,6 +171,9 @@ module.exports = (function(){
 			assetLoaded();
 		};
 		atlasImage.src = config.meshingConfig.atlas.src;
+
+		assetsLoading++;
+		Audio.fetchAudio(Object.values(config.sfx).map(x => x.uri), assetLoaded);
 	};
 
 	return exports;

@@ -24,20 +24,6 @@ module.exports = (function(){
 	let castDirection = vec3.fromValues(0, -1, 0);
 	// TODO: ^^ vec3Ext.Up / Down / Left / Right / Forward / Back (just be sure which way is right? +x?) 
 
-	// TODO: Move this to a config lookup
-	/*let buildSplashSfxUri = (entry, num, isBig) => {
-		if (!num) {
-			num = 1;
-		} 
-		if (entry) {
-			if (isBig) {
-				return "audio/sfx/splash/BigSplash" + num + ".ogg"; 
-			} 
-			return "audio/sfx/splash/Splash" + num + ".ogg";
-		} 
-		return "audio/sfx/splash/ExitSplash" + num + ".ogg";
-	};*/
-
 	let vec3ScaleXZ = (out, a, scale) => {
 		let y = a[1];
 		a[1] = 0;
@@ -87,6 +73,16 @@ module.exports = (function(){
 
 		return closestSqrDistance != Number.POSITIVE_INFINITY;
 	};
+
+	let pickMaterialSfxUri = (materials, material, action) => {
+		if (material && materials[material] && materials[material].sfx) {
+			let sfxArray = materials[material].sfx[action];
+			if (sfxArray && sfxArray.length > 0) {
+				return sfxArray[Random.integer(0, sfxArray.length)].uri;
+			}
+		}
+		return null;
+	}
 
 	exports.create = (parameters) => {
 		let player = Object.create(prototype);
@@ -270,11 +266,10 @@ module.exports = (function(){
 		let lastGroundedVoxelMaterial = "ground";
 
 		let jump = () => {
-			// TODO: Look up from gameConfig.material
-			// Audio.play({ 
-			// 	uri: VorldHelper.buildSfxMaterialUri(lastGroundedVoxelMaterial, lastMovementSfxAction, Random.roll(1,4)),
-			// 	mixer: Audio.mixers["sfx/footsteps"]
-			// });
+			Audio.play({ 
+				uri: pickMaterialSfxUri(gameConfig.materials, lastGroundedVoxelMaterial, lastMovementSfxAction),
+				mixer: Audio.mixers["sfx/footsteps"]
+			});
 
 			grounded = false;
 			canCoyote = false;
@@ -498,7 +493,7 @@ module.exports = (function(){
 						lastGroundedVoxelMaterial = "water";
 					} else {
 						let groundBlock = Vorld.getBlock(vorld, closestVoxelCoord[0], closestVoxelCoord[1], closestVoxelCoord[2]);
-						lastGroundedVoxelMaterial = BlockConfig.getBlockTypeDefinition(vorld, groundBlock).sfxMat;
+						lastGroundedVoxelMaterial = BlockConfig.getBlockTypeDefinition(vorld, groundBlock).material;
 					}
 				}
 
@@ -573,19 +568,18 @@ module.exports = (function(){
 				if ((didStep && timeSinceLastStep > 0.25) // Technically should play sound every step but it sounds silly when you're running up steps
 					|| (hasPlayedFirstStep && timeSinceLastStep > period)
 					|| (!hasPlayedFirstStep && timeSinceLastStep > 0.5 * period)) {
-					// TODO: use gameConfig.material to get sfx 
-					// Audio.play({ 
-					// 	uri: VorldHelper.buildSfxMaterialUri(lastGroundedVoxelMaterial, lastMovementSfxAction, Random.roll(1, 4)),
-					// 	mixer: Audio.mixers["sfx/footsteps"]
-					// });
+					
+					Audio.play({ 
+						uri: pickMaterialSfxUri(gameConfig.materials, lastGroundedVoxelMaterial, lastMovementSfxAction),
+						mixer: Audio.mixers["sfx/footsteps"]
+					});
+					
 					if (isInWater) {
 						// Play the swooshes when walking through water too
-						// TODO: use gameConfig.material to get sfx
-						// let uri = VorldHelper.buildSfxMaterialUri("water", "swim", Random.roll(1,4));
-						// Audio.play({ 
-						// 	uri: uri,
-						// 	mixer: Audio.mixers["sfx/footsteps"]
-						// });
+						Audio.play({ 
+							uri: pickMaterialSfxUri(gameConfig.materials, "water", "swim"),
+							mixer: Audio.mixers["sfx/footsteps"]
+						});
 					}
 					timeSinceLastStep = 0;
 					hasPlayedFirstStep = true;
@@ -596,11 +590,10 @@ module.exports = (function(){
 				let period = stepPeriods[action]; // 'step period'
 				timeSinceLastStep += elapsed;
 				if (!hasPlayedFirstStep || timeSinceLastStep > period) {
-					// TODO: use gameConfig.material to get sfx
-					// Audio.play({ 
-					// 	uri: VorldHelper.buildSfxMaterialUri("water", action, Random.roll(1, 4)),
-					// 	mixer: Audio.mixers["sfx/footsteps"]
-					// });
+					Audio.play({ 
+						uri: pickMaterialSfxUri(gameConfig.materials, "water", action),
+						mixer: Audio.mixers["sfx/footsteps"]
+					});
 					timeSinceLastStep = 0;
 					hasPlayedFirstStep = true;
 				}
@@ -648,7 +641,7 @@ module.exports = (function(){
 					let closestVoxelCoord = Maths.vec3Pool.request();
 					if (tryGetClosestGroundVoxelCoords(closestVoxelCoord, vorld, player.box)) {
 						let groundBlock = Vorld.getBlock(vorld, closestVoxelCoord[0], closestVoxelCoord[1], closestVoxelCoord[2]);
-						lastGroundedVoxelMaterial = BlockConfig.getBlockTypeDefinition(vorld, groundBlock).sfxMat;
+						lastGroundedVoxelMaterial = BlockConfig.getBlockTypeDefinition(vorld, groundBlock).material;
 					}
 					Maths.vec3Pool.return(closestVoxelCoord);
 				}
@@ -658,11 +651,10 @@ module.exports = (function(){
 				} else {
 					if (!grounded) {
 						// Landed! (and didn't jump - which will play it's own SFX)
-						// TODO: Use gameConfig.material to get sfx uri
-						// Audio.play({ 
-						// 	uri: VorldHelper.buildSfxMaterialUri(lastGroundedVoxelMaterial, lastMovementSfxAction, Random.roll(1, 4)),
-						// 	mixer: Audio.mixers["sfx/footsteps"]
-						// });
+						Audio.play({ 
+							uri: pickMaterialSfxUri(gameConfig.materials, lastGroundedVoxelMaterial, lastMovementSfxAction),
+							mixer: Audio.mixers["sfx/footsteps"]
+						});
 						hasPlayedFirstStep = true;
 					}
 					grounded = true;
@@ -680,25 +672,22 @@ module.exports = (function(){
 				// Entered Water
 				if (vec3.length(player.velocity) > 18) {
 					// BIG splash!
-					// TODO: use gameConfig.material and remove buildSplashSfxUri
-					// Audio.play({
-					// 	uri: buildSplashSfxUri(true, Random.roll(1, 2), true),
-					// 	mixer: Audio.mixers["sfx/footsteps"]
-					// }, 0, false, 5);
+					Audio.play({ 
+						uri: pickMaterialSfxUri(gameConfig.materials, "water", "enter_fast"),
+						mixer: Audio.mixers["sfx/footsteps"]
+					}, 0, false, 5);
 				} else {
-					// TODO: use gameConfig.material and remove buildSplashSfxUri
-					// Audio.play({
-					// 	uri: buildSplashSfxUri(true, Random.roll(1, 3)),
-					// 	mixer: Audio.mixers["sfx/footsteps"]
-					// });
+					Audio.play({ 
+						uri: pickMaterialSfxUri(gameConfig.materials, "water", "enter"),
+						mixer: Audio.mixers["sfx/footsteps"]
+					});
 				}
 			} else if (wasInWater && !isInWater) {
 				// Exited water
-				// TODO: use gameConfig.material and remove buildSplashSfxUri
-				// Audio.play({
-				// 	uri: buildSplashSfxUri(false, Random.roll(1, 3)),
-				// 	mixer: Audio.mixers["sfx/footsteps"]
-				// });
+				Audio.play({ 
+					uri: pickMaterialSfxUri(gameConfig.materials, "water", "exit"),
+					mixer: Audio.mixers["sfx/footsteps"]
+				});
 			}
 
 			// let wasSwimming = isSwimming;

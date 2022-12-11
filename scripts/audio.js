@@ -174,7 +174,7 @@ let Audio = module.exports = (function(){
 	}
 	*/
 	exports.play = (audioSource, delay, loop, volume) => {
-		let buffer = buffers[audioSource.uri];
+		let buffer = audioSource.uri ? buffers[audioSource.uri] : null;
 		let targetNode = audioSource.mixer;
 		let source = null;
 		if (!targetNode) {
