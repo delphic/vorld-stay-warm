@@ -21,33 +21,6 @@ module.exports = (function(){
 	let player = null;
 	let initialGenerationComplete = false;
 
-	// TODO: Expose in Options Menu (from Main and Pause Menus)
-	let playerPrefs = {
-		mouseLookSpeed: 0.25,
-		forwardKey: "w",
-		leftKey: "a",
-		backKey: "s",
-		rightKey: "d",
-		upKey: "Space",
-		downKey: "Shift",
-		jumpKey: "Space",
-		walkKey: "Shift"
-	};
-
-	let playerMovementConfig = {
-		acceleration: 80,
-		maxWalkSpeed: 2,
-		maxWadeSpeed: 3,
-		maxSwimSpeed: 4,
-		maxRunSpeed: 5.5,
-		maxSprintSpeed: 8,
-		stopSpeed: 1.5,
-		airAcceleration: 10,
-		airMaxMovementSpeed: 4,
-		waterAcceleration: 10,
-		waterMaxMovementSpeed: 4
-	};
-
 	let start = () => {
 		GameLoop.start();
 		let generationConfig =  { bounds: {
@@ -121,8 +94,6 @@ module.exports = (function(){
 				position: spawnPoint,
 				quad: null, // overlayScene.add({ mesh: Primitives.createQuadMesh(VorldHelper.getTileIndexBufferValueForBlock("water")), material: quadMat, position: vec3.create() }),
 				camera: camera,
-				config: playerMovementConfig,
-				prefs: playerPrefs,
 				size: vec3.fromValues(0.75, 2, 0.75), // BUG: If you use size 0.8 - you can walk through blocks at axis = 7 when moving from axis = 8.
 				stepHeight: 0.51,
 				placementDistance: 5.5 + Math.sqrt(3),

@@ -350,5 +350,29 @@
 		"splash_1": { "uri": "audio/sfx/splash/splash_1.ogg" },
 		"splash_2": { "uri": "audio/sfx/splash/splash_2.ogg" },
 		"splash_3": { "uri": "audio/sfx/splash/splash_3.ogg" }
+	},
+	"playerInputMap": {
+		"mouseLookSpeed": 0.25,
+		"forwardKey": "w",
+		"leftKey": "a",
+		"backKey": "s",
+		"rightKey": "d",
+		"upKey": "Space",
+		"downKey": "Shift",
+		"jumpKey": "Space",
+		"walkKey": "Shift"
+	},
+	"playerMovement": {
+		"acceleration": 80,
+		"maxWalkSpeed": 2,
+		"maxWadeSpeed": 3,
+		"maxSwimSpeed": 4,
+		"maxRunSpeed": 5.5,
+		"maxSprintSpeed": 8,
+		"stopSpeed": 1.5,
+		"airAcceleration": 10,
+		"airMaxMovementSpeed": 4,
+		"waterAcceleration": 10,
+		"waterMaxMovementSpeed": 4
 	}
 }

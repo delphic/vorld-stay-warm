@@ -100,8 +100,8 @@ module.exports = (function(){
 		let gameConfig = parameters.gameConfig;
 		let vorldController = parameters.vorldController;
 
-		player.config = parameters.config;
-		let prefs = player.prefs = parameters.prefs;
+		player.config = gameConfig.playerMovement;
+		let prefs = player.prefs = gameConfig.playerInputMap;
 		let maxMovementSpeed = player.config.maxRunSpeed;
 
 		let size = parameters.size;
