@@ -1,0 +1,165 @@
+body, #fury {
+	background-color: rgba(190, 216, 235, 1);
+}
+
+/* CSS Loading Spinner */
+/* https://www.w3docs.com/snippets/css/how-to-create-loading-spinner-with-css.html */
+@keyframes spinner {
+	0% {
+		transform: translate3d(-50%, -50%, 0) rotate(0deg);
+	}
+	100% {
+		transform: translate3d(-50%, -50%, 0) rotate(360deg);
+	}
+}
+.spin::before {
+	animation: 1.5s linear infinite spinner;
+	animation-play-state: inherit;
+	border: solid 5px #cfd0d1;
+	border-bottom-color: rgba(255,0,102,1);
+	border-radius: 50%;
+	content: "";
+	height: 40px;
+	width: 40px;
+	position: absolute;
+	top: 270px;
+	left: 50%;
+	margin-top: -20px;
+	margin-left: -20px;
+	transform: translate3d(-50%, -50%, 0);
+	will-change: transform;
+}
+
+.furyGUI {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 14px;
+	color: rgba(255,255,255,1);
+}
+
+.furyGUI p {
+	margin: 3px 5px;
+}
+
+.furyGUI .box h1 {
+	font-size: 1.5em;
+	margin: 0;
+	padding: 3px 5px;
+}
+
+.furyGUI .box .content {
+	margin: 0;
+}
+
+.furyGUI .inspector {
+	background-color: rgba(0,0,0,0.5);
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgba(255,255,255,0.5);
+	border-radius: 5px;
+}
+
+.furyGUI .inspector h1 {
+	background-color: rgba(255,0,102,1);
+	border-radius: 4px 4px 0 0;	/* One less than box border radius */
+}
+
+.furyGUI .inspector .control {
+	margin: 3px 0;
+}
+
+.furyGUI .inspector .control label, .furyGUI .inspector .control input {
+	margin: 3px 5px;
+	font-family: 'Courier New', Courier, monospace;
+}
+
+.furyGUI .inspector .control input {
+	background-color: rgba(0,0,0,0);
+	border: 1px solid rgba(255,255,255,0.5);
+	color: rgba(255,255,255,1)
+}
+
+.furyGUI .menu {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	top: 100px;
+}
+
+.furyGUI .playPrompt {
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 100px;
+	text-align: center;
+	top: 50%;
+	margin-top: -150px;
+}
+
+.furyGUI .dialog {
+	border: 1px solid rgba(255,255,255,0.5);
+	border-radius: 1px;
+	background-color: rgba(0,0,0,0.25);
+}
+
+.furyGUI .dialog h1 {
+	font-size: 32px;
+	padding: 6px 10px;
+	margin: 0;
+	background-color: rgba(255,0,102,1);
+}
+
+.furyGUI .dialog p {
+	font-size: 28px;
+	margin: 6px 16px;
+}
+
+.playPrompt h1, .menu h1 {
+	font-size: 70px;
+	margin-top: 0;
+}
+
+.playPrompt input, .menu input, .dialog input {
+	display: block;
+	margin: 10px auto;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 28px;
+	background-color: hsl(336,100%,60%);  /* rba 255,0,102 Complementary color 00ff99 */
+	color: rgba(255,255,255,1);
+	border: none;
+	padding: 10px 20px;
+}
+.playPrompt input:hover, .menu input:hover, .dialog input:hover {
+	background-color: hsl(336,100%,50%);
+}
+.playPrompt input:active, .menu input:active, .dialog input:active {
+	background-color: hsl(340, 3%, 21%);
+}
+
+a, a:visited {
+	font-weight: bold;
+	color: hsl(336,100%,60%);
+}
+a:hover {
+	color: hsl(336,100%,50%);
+}
+
+.progressBarBorder {
+	border: 1px solid rgba(255,255,255,0.5);
+	width: 300px;
+	height: 25px;
+	margin: auto;
+}
+.progressBar {
+	background-color: rgba(255,0,102,1);
+	width: 0%;
+	height: 100%;
+}
+
+.fullscreenButton {
+	position: absolute;
+	background-image: url("../images/fullscreen_icon.png");
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
