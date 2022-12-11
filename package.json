@@ -5,6 +5,9 @@
 	"author": "delphic",
 	"license": "MIT",
 	"private": true,
+    "dependencies": {
+        "fury": "delphic/fury#master"
+    },
 	"devDependencies": {
 		"eslint": "^8.11.0"
 	}
