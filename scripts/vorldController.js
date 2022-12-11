@@ -464,6 +464,7 @@ module.exports = (function(){
 
 	// NOTE: Moved from game.js compared to cartographer
 	// TODO: May want to add emissive material / or take emissive texture map
+	// TODO: Will need dynamic material for held objects if using the voxel shader for held objects
 	let skyColor = [ 0, 0, 0 ];
 	exports.createVorldMaterials = function(image) {
 		let shaderConfig = VoxelShader.create();

@@ -1,7 +1,9 @@
 const Fury = require('fury');
-const { GameLoop } = Fury;
+const { Maths, GameLoop } = Fury;
+const { vec3 } = Maths;
+const Audio = require('./audio'); // Note this clashes with global Audio constructor
 const VorldController = require('./vorldController');
-
+const Player = require('./player');
 
 module.exports = (function(){
 	let exports = {};
@@ -15,7 +17,36 @@ module.exports = (function(){
 	let vorldController = null;
 
 	let vorld = null;
+	let world = { boxes: [], entities: [] };
+	let player = null;
 	let initialGenerationComplete = false;
+
+	// TODO: Expose in Options Menu (from Main and Pause Menus)
+	let playerPrefs = {
+		mouseLookSpeed: 0.25,
+		forwardKey: "w",
+		leftKey: "a",
+		backKey: "s",
+		rightKey: "d",
+		upKey: "Space",
+		downKey: "Shift",
+		jumpKey: "Space",
+		walkKey: "Shift"
+	};
+
+	let playerMovementConfig = {
+		acceleration: 80,
+		maxWalkSpeed: 2,
+		maxWadeSpeed: 3,
+		maxSwimSpeed: 4,
+		maxRunSpeed: 5.5,
+		maxSprintSpeed: 8,
+		stopSpeed: 1.5,
+		airAcceleration: 10,
+		airMaxMovementSpeed: 4,
+		waterAcceleration: 10,
+		waterMaxMovementSpeed: 4
+	};
 
 	let start = () => {
 		GameLoop.start();
@@ -50,11 +81,71 @@ module.exports = (function(){
 					}
 				}
 			}
-			vorldController.finishBatchUpdate(vorld, () => { console.log("Added walls?") });
+			vorldController.finishBatchUpdate(vorld, () => { 
+				spawnPlayer();
+			});
+		}
+
+		if (player) {
+			player.update(elapsed);
+			Audio.setListenerPosition(player.position);
 		}
 		// TODO: Run some logic!
 		scene.render();
 	}
+
+	let spawnPlayer = () => {
+		let spawnPoint = null;
+			if (!vorld.meta) {
+				vorld.meta = {};
+			}
+			if (!vorld.meta.spawnPoint) {
+				vorld.meta.spawnPoint = [0, 4, 0];
+			}
+			spawnPoint = vec3.clone(vorld.meta.spawnPoint);
+
+			// TODO: Create Dynamic Material in vorld controller (?)
+			// let quadMat = Object.create(dynamicMaterial);
+			// quadMat.id = null;
+
+			// TODO: Create overlay scene, we probably need it
+			// orb: null, // overlayScene.add({ mesh: Fury.Mesh.create(VorldHelper.getHeldOrbMeshData()), material: unlitMaterial, position: vec3.create() }), // HACK - should be able to hold more than just an orb
+			// ^^ Useful for held object logic 
+
+			let playerConfig = {
+				world: world,
+				vorld: vorld,
+				gameConfig: config,
+				vorldController: vorldController,
+				scene: scene,
+				position: spawnPoint,
+				quad: null, // overlayScene.add({ mesh: Primitives.createQuadMesh(VorldHelper.getTileIndexBufferValueForBlock("water")), material: quadMat, position: vec3.create() }),
+				camera: camera,
+				config: playerMovementConfig,
+				prefs: playerPrefs,
+				size: vec3.fromValues(0.75, 2, 0.75), // BUG: If you use size 0.8 - you can walk through blocks at axis = 7 when moving from axis = 8.
+				stepHeight: 0.51,
+				placementDistance: 5.5 + Math.sqrt(3),
+				removalDistance: 5.5,
+				enableCreativeMode: debug,
+				onBlockPlaced: (block, x, y, z) => { 
+					/* TODO: play appropriate block placement sfx and update game logic based on placement? */
+				},
+				onBlockRemoved: (block, x, y, z) => {
+					/* TODO: play appropriate block removal sfx and update game logic based on placement? */
+				},
+			};
+			// Massive Player!
+			// playerConfig.size = vec3.fromValues(4,8,4);
+			// playerConfig.stepHeight = 2.01;
+			// Tiny Player
+			// playerConfig.size = vec3.fromValues(0.25,0.5,0.25);
+			// playerConfig.stepHeight = 0.26;
+			player = Player.create(playerConfig);
+
+			// TODO: Trigger this from a user gesture so we can request pointer lock here and then...
+			// add a pause menu so we can get it back on clicking resume if we esc to remove it
+	};
 
 	exports.init = function({ canvas, gameConfig }) {
 		canvas.addEventListener("resize", () => {
