@@ -1,0 +1,354 @@
+
+{
+	"blockIds": {
+		"air": 0,
+		"stone": 1,
+		"soil": 2,
+		"grass": 3,
+		"wood": 4,
+		"leaves": 5,
+		"water": 6,
+		"stone_blocks": 7,
+		"stone_half": 8,
+		"stone_step": 9,
+		"planks": 10,
+		"planks_half": 11,
+		"planks_step": 12,
+		"torch": 13,
+		"test": 14,
+		"long_grass": 15,
+		"vines": 16,
+		"vines_flower": 17,
+		"cobblestone": 18,
+		"tulip": 19,
+		"foxglove_top": 20,
+		"foxglove_bottom": 21,
+		"snow": 22
+	},
+	"blockConfig": [
+		{ "name": "air", "isOpaque": false, "isSolid": false },
+		{ "name": "stone", "isOpaque": true, "isSolid": true, "material": "stone" },
+		{ "name": "soil", "isOpaque": true, "isSolid": true, "material": "ground" },
+		{ "name": "grass", "isOpaque": true, "isSolid": true, "material": "grass" },
+		{ "name": "wood", "isOpaque": true, "isSolid": true, "material": "wood", "placement": "up_normal", "rotateTextureCoords": true },
+		{ "name": "leaves", "isOpaque": false, "isSolid": true, "material": "leaf", "useCutout": true, "meshInternals": true, "attenuation": 3 },
+		{ "name": "water", "isOpaque": false, "isSolid": false, "material": "water", "useAlpha": true, "attenuation": 3 },
+		{ "name": "stone_blocks", "isOpaque": true, "isSolid": true, "material": "stone" },
+		{ "name": "stone_half", "isOpaque": false, "isSolid": true, "material": "stone", "mesh": "halfCube", "attenuation": 2, "placement": "half" },
+		{ "name": "stone_step", "isOpaque": false, "isSolid": true, "material": "stone", "mesh": "step", "attenuation": 3, "placement": "steps" , "collision": "collisionMesh.step" }, 
+		{ "name": "planks", "isOpaque": true, "isSolid": true, "material": "wood" },
+		{ "name": "planks_half", "isOpaque": false, "isSolid": true, "material": "wood", "mesh": "halfCube", "attenuation": 2, "placement": "half" },
+		{ "name": "planks_step", "isOpaque": false, "isSolid": true, "material": "wood", "mesh": "step", "attenuation": 3, "placement": "steps", "collision": "collisionMesh.step" },
+		{ "name": "torch", "isOpaque": false, "isSolid": true, "material": "stone", "mesh": "torch", "light": 8, "placement": "up_normal", "rotateTextureCoords": true },
+		{ "name": "test", "isOpaque": true, "isSolid": true, "material": "stone", "placement": "front_facing", "rotateTextureCoords": true },
+		{ "name": "long_grass", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
+		{ "name": "vines", "isOpaque": false, "isSolid": true, "material": "leaf", "useCutout": true, "mesh": "surfaceBlock", "attenuation": 2, "placement": "front_normal" },
+		{ "name": "vines_flower", "isOpaque": false, "isSolid": true, "material": "leaf", "light": 5, "useCutout": true, "mesh": "surfaceBlock", "attenuation": 2, "placement": "front_normal" },
+		{ "name": "cobblestone", "isOpaque": true, "isSolid": true, "material": "stone" },
+		{ "name": "tulip", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
+		{ "name": "foxglove_top", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
+		{ "name": "foxglove_bottom", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
+		{ "name": "snow", "isOpaque": true, "isSolid": true, "material": "snow" }
+	],
+	"materials": {
+		"snow": {
+			"sfx": {
+				"add": [ "sfx.grass_run_0", "sfx.grass_run_1", "sfx.grass_run_2", "sfx.grass_run_3" ],
+				"remove": [ "sfx.grass_walk_0", "sfx.grass_walk_1", "sfx.grass_walk_2", "sfx.grass_walk_3" ],
+				"run": [ "sfx.grass_run_0", "sfx.grass_run_1", "sfx.grass_run_2", "sfx.grass_run_3" ],
+				"walk": [ "sfx.grass_walk_0", "sfx.grass_walk_1", "sfx.grass_walk_2", "sfx.grass_walk_3" ],
+				"sneak": [ "sfx.grass_sneak_0", "sfx.grass_sneak_1", "sfx.grass_sneak_2", "sfx.grass_sneak_3" ]
+			}
+		},
+		"grass": {
+			"sfx": {
+				"add": [ "sfx.grass_run_0", "sfx.grass_run_1", "sfx.grass_run_2", "sfx.grass_run_3" ],
+				"remove": [ "sfx.grass_walk_0", "sfx.grass_walk_1", "sfx.grass_walk_2", "sfx.grass_walk_3" ],
+				"run": [ "sfx.grass_run_0", "sfx.grass_run_1", "sfx.grass_run_2", "sfx.grass_run_3" ],
+				"walk": [ "sfx.grass_walk_0", "sfx.grass_walk_1", "sfx.grass_walk_2", "sfx.grass_walk_3" ],
+				"sneak": [ "sfx.grass_sneak_0", "sfx.grass_sneak_1", "sfx.grass_sneak_2", "sfx.grass_sneak_3" ]
+			}
+		},
+		"ground": {
+			"sfx": {
+				"add": [ "sfx.ground_run_0", "sfx.ground_run_1", "sfx.ground_run_2", "sfx.ground_run_3" ],
+				"remove": [ "sfx.ground_walk_0", "sfx.ground_walk_1", "sfx.ground_walk_2", "sfx.ground_walk_3" ],
+				"run": [ "sfx.ground_run_0", "sfx.ground_run_1", "sfx.ground_run_2", "sfx.ground_run_3" ],
+				"walk": [ "sfx.ground_walk_0", "sfx.ground_walk_1", "sfx.ground_walk_2", "sfx.ground_walk_3" ],
+				"sneak": [ "sfx.ground_sneak_0", "sfx.ground_sneak_1", "sfx.ground_sneak_2", "sfx.ground_sneak_3" ]
+			}
+		},
+		"leaf": {
+			"sfx": {
+				"add": [ "sfx.leaf_run_0", "sfx.leaf_run_1", "sfx.leaf_run_2", "sfx.leaf_run_3" ],
+				"remove": [ "sfx.leaf_walk_0", "sfx.leaf_walk_1", "sfx.leaf_walk_2", "sfx.leaf_walk_3" ],
+				"run": [ "sfx.leaf_run_0", "sfx.leaf_run_1", "sfx.leaf_run_2", "sfx.leaf_run_3" ],
+				"walk": [ "sfx.leaf_walk_0", "sfx.leaf_walk_1", "sfx.leaf_walk_2", "sfx.leaf_walk_3" ],
+				"sneak": [ "sfx.leaf_sneak_0", "sfx.leaf_sneak_1", "sfx.leaf_sneak_2", "sfx.leaf_sneak_3" ]
+			}
+		},
+		"stone": {
+			"sfx": {
+				"add": [ "sfx.stone_run_0", "sfx.stone_run_1", "sfx.stone_run_2", "sfx.stone_run_3" ],
+				"remove": [ "sfx.stone_walk_0", "sfx.stone_walk_1", "sfx.stone_walk_2", "sfx.stone_walk_3" ],
+				"run": [ "sfx.stone_run_0", "sfx.stone_run_1", "sfx.stone_run_2", "sfx.stone_run_3" ],
+				"walk": [ "sfx.stone_walk_0", "sfx.stone_walk_1", "sfx.stone_walk_2", "sfx.stone_walk_3" ],
+				"sneak": [ "sfx.stone_sneak_0", "sfx.stone_sneak_1", "sfx.stone_sneak_2", "sfx.stone_sneak_3" ]
+			}
+		},
+		"water": {
+			"sfx": {
+				"add": [ "sfx.water_run_0", "sfx.water_run_1", "sfx.water_run_2", "sfx.water_run_3" ],
+				"remove": [ "sfx.water_walk_0", "sfx.water_walk_1", "sfx.water_walk_2", "sfx.water_walk_3" ],
+				"run": [ "sfx.water_run_0", "sfx.water_run_1", "sfx.water_run_2", "sfx.water_run_3" ],
+				"walk": [ "sfx.water_walk_0", "sfx.water_walk_1", "sfx.water_walk_2", "sfx.water_walk_3" ],
+				"sneak": [ "sfx.water_sneak_0", "sfx.water_sneak_1", "sfx.water_sneak_2", "sfx.water_sneak_3" ],
+				"swim": [ "sfx.water_swim_0", "sfx.water_swim_1", "sfx.water_swim_2", "sfx.water_swim_3" ],
+				"enter": [ "sfx.splash_1", "sfx.splash_2", "sfx.splash_3" ],
+				"enter_fast": [ "sfx.big_splash_1", "sfx.big_splash2" ],
+				"exit": [ "sfx.exit_splash_1", "sfx.exit_splash_2", "sfx.exit_splash3" ]
+			}
+		},
+		"wood": {
+			"sfx": {
+				"add": [ "sfx.wood_run_0", "sfx.wood_run_1", "sfx.wood_run_2", "sfx.wood_run_3" ],
+				"remove": [ "sfx.wood_walk_0", "sfx.wood_walk_1", "sfx.wood_walk_2", "sfx.wood_walk_3" ],
+				"run": [ "sfx.wood_run_0", "sfx.wood_run_1", "sfx.wood_run_2", "sfx.wood_run_3" ],
+				"walk": [ "sfx.wood_walk_0", "sfx.wood_walk_1", "sfx.wood_walk_2", "sfx.wood_walk_3" ],
+				"sneak": [ "sfx.wood_sneak_0", "sfx.wood_sneak_1", "sfx.wood_sneak_2", "sfx.wood_sneak_3" ]
+			}
+		}
+	},
+	"meshingConfig": {
+		"atlas": {
+			"src": "images/atlas.png",
+			"textureArraySize": 29,
+			"blockToTileIndex": [
+				null,
+				{ "side": 3 },
+				{ "side": 2 },
+				{ "side": 1, "top": 0, "bottom": 2 },
+				{ "side": 9, "top": 8, "bottom": 8 },
+				{ "side": 11 },
+				{ "side": 12 },
+				{ "side": 4 },
+				{ "side": 5, "top": 6, "bottom": 6 },
+				{ "side": 4 },
+				{ "side": 10 },
+				{ "side": 10 },
+				{ "side": 10 },
+				{ "side": 13, "top": 14, "bottom": 13 },
+				{ "top": 15, "bottom": 16, "forward": 17, "back": 18, "right": 20, "left": 19 },
+				{ "side": 22 },
+				{ "side": 11 },
+				{ "side": 23 },
+				{ "side": 24 },
+				{ "side": 25 },
+				{ "side": 26 },
+				{ "side": 27 },
+				{ "side": 28 }
+			]
+		}
+	},
+	"models": {
+		
+	},
+	"collisionMesh": {
+		"step": [
+			{ "min": [ 0.0, 0.0, 0.0 ], "max": [ 1.0, 0.5, 1.0 ] },
+			{ "min": [ 0.0, 0.5, 0.5 ], "max": [ 1.0, 1.0, 1.0 ] }
+		]
+	},
+	"shapingFunction": {
+		"gaussian" : {
+			"name": "gaussian",
+			"amplitude": 32,
+			"denominator": 8,
+			"sdx": 128,
+			"sdz": 256
+		},
+		"negativeY": {
+			"name": "negative_y",
+			"yDenominator": 32,
+			"yOffset": 128
+		},
+		"inverseY": {
+			"name": "inverse_y",
+			"numerator": 100,
+			"yOffset": 0
+		},
+		"one_chunk_slab": {
+			"name": "expression",
+			"expression": "(x, y, z) => { if (y == 0 && (x >= 0 && x < 16) && (z >=0 && z < 16)) { return 1 } return 0; }"
+		}
+	},
+	"terrainGenerationRules": {
+		"stone": {
+			"defaultBlockValue": 1,
+			"octaveWeightings": [],
+			"thresholds": [ 0 ],
+			"blocksByThreshold": [ "blockIds.air", "blockIds.stone" ],
+			"verticalTransforms": []
+		},
+		"flat": {
+			"octaveWeightings": [],
+			"thresholds": [ 1 ],
+			"blocksByThreshold": [ "blockIds.air" ],
+			"verticalTransforms": [{
+					"conditions": [ "blockValue", "yMax" ],
+					"block": "blockIds.air",
+					"yMax": -4,
+					"targetBlock": "blockIds.stone"
+				}, {
+					"conditions": [ "blockValue", "yMax" ],
+					"block": "blockIds.air",
+					"yMax": -2,
+					"targetBlock": "blockIds.soil"
+				}, {
+					"conditions": [ "blockValue", "yMax" ],
+					"block": "blockIds.air",
+					"yMax": -1,
+					"targetBlock": "blockIds.grass"
+				}
+			]
+		},
+		"guassian_shaped_noise": {
+			"baseWavelength": 128,
+			"octaveWeightings": [ 0.5, 0.5, 1, 0.1 ],
+			"neutralNoise": true,
+			"thresholds": [ 0.5, 0.8 ],
+			"blocksByThreshold": [ "blockIds.air", "blockIds.soil", "blockIds.stone" ], 
+			"verticalTransforms": [{
+					"conditions": [ "blockValue", "yMax" ],
+					"block": "blockIds.air",
+					"yMax": -15,
+					"targetBlock": "blockIds.stone"
+				}, {
+					"conditions": [ "blockValue", "yRange" ],
+					"block": "blockIds.air",
+					"yMin": -14,
+					"yMax": -14,
+					"targetBlock": "blockIds.soil"
+				}, {
+					"conditions": [ "blockValue", "yMax" ],
+					"block": "blockIds.air",
+					"yMax": 0,
+					"targetBlock": "blockIds.water"
+				}, {
+					"conditions": [ "blockValue", "blockAboveValue", "yMin" ],
+					"blockAbove": "blockIds.air",
+					"block": "blockIds.soil",
+					"targetBlock": "blockIds.grass",
+					"yMin": 0
+				}
+			],
+			"shapingFunction": "shapingFunction.gaussian"
+		}
+	},
+	"lightingConfig": {
+		"day": {
+			"fogColor": [ 136, 206, 235 ],
+			"fogDensity": 0.005,
+			"ambientMagnitude": 0.05,
+			"sunlightMagnitude": 0.9
+		},
+		"foggy": {
+			"fogColor": [ 136, 206, 235 ],
+			"fogDensity": 0.05,
+			"ambientMagnitude": 0.1,
+			"sunlightMagnitude": 0.5
+		},
+		"night": {
+			"fogColor": [ 0, 0, 13 ],
+			"fogDensity": 0.02,
+			"ambientMagnitude": 0.05,
+			"sunlightMagnitude": 0
+		}
+	},
+	"sfx" : {
+		"grass_run_0": { "uri": "audio/sfx/materials/grass_run_0.ogg" },
+		"grass_run_1": { "uri": "audio/sfx/materials/grass_run_1.ogg" },
+		"grass_run_2": { "uri": "audio/sfx/materials/grass_run_2.ogg" },
+		"grass_run_3": { "uri": "audio/sfx/materials/grass_run_3.ogg" },
+		"grass_walk_0": { "uri": "audio/sfx/materials/grass_walk_0.ogg" },
+		"grass_walk_1": { "uri": "audio/sfx/materials/grass_walk_1.ogg" },
+		"grass_walk_2": { "uri": "audio/sfx/materials/grass_walk_2.ogg" },
+		"grass_walk_3": { "uri": "audio/sfx/materials/grass_walk_3.ogg" },
+		"grass_sneak_0": { "uri": "audio/sfx/materials/grass_sneak_0.ogg" },
+		"grass_sneak_1": { "uri": "audio/sfx/materials/grass_sneak_1.ogg" },
+		"grass_sneak_2": { "uri": "audio/sfx/materials/grass_sneak_2.ogg" },
+		"grass_sneak_3": { "uri": "audio/sfx/materials/grass_sneak_3.ogg" },
+		"ground_run_0": { "uri": "audio/sfx/materials/ground_run_0.ogg" },
+		"ground_run_1": { "uri": "audio/sfx/materials/ground_run_1.ogg" },
+		"ground_run_2": { "uri": "audio/sfx/materials/ground_run_2.ogg" },
+		"ground_run_3": { "uri": "audio/sfx/materials/ground_run_3.ogg" },
+		"ground_walk_0": { "uri": "audio/sfx/materials/ground_walk_0.ogg" },
+		"ground_walk_1": { "uri": "audio/sfx/materials/ground_walk_1.ogg" },
+		"ground_walk_2": { "uri": "audio/sfx/materials/ground_walk_2.ogg" },
+		"ground_walk_3": { "uri": "audio/sfx/materials/ground_walk_3.ogg" },
+		"ground_sneak_0": { "uri": "audio/sfx/materials/ground_sneak_0.ogg" },
+		"ground_sneak_1": { "uri": "audio/sfx/materials/ground_sneak_1.ogg" },
+		"ground_sneak_2": { "uri": "audio/sfx/materials/ground_sneak_2.ogg" },
+		"ground_sneak_3": { "uri": "audio/sfx/materials/ground_sneak_3.ogg" },
+		"leaf_run_0": { "uri": "audio/sfx/materials/leaf_run_0.ogg" },
+		"leaf_run_1": { "uri": "audio/sfx/materials/leaf_run_1.ogg" },
+		"leaf_run_2": { "uri": "audio/sfx/materials/leaf_run_2.ogg" },
+		"leaf_run_3": { "uri": "audio/sfx/materials/leaf_run_3.ogg" },
+		"leaf_walk_0": { "uri": "audio/sfx/materials/leaf_walk_0.ogg" },
+		"leaf_walk_1": { "uri": "audio/sfx/materials/leaf_walk_1.ogg" },
+		"leaf_walk_2": { "uri": "audio/sfx/materials/leaf_walk_2.ogg" },
+		"leaf_walk_3": { "uri": "audio/sfx/materials/leaf_walk_3.ogg" },
+		"leaf_sneak_0": { "uri": "audio/sfx/materials/leaf_sneak_0.ogg" },
+		"leaf_sneak_1": { "uri": "audio/sfx/materials/leaf_sneak_1.ogg" },
+		"leaf_sneak_2": { "uri": "audio/sfx/materials/leaf_sneak_2.ogg" },
+		"leaf_sneak_3": { "uri": "audio/sfx/materials/leaf_sneak_3.ogg" },
+		"stone_run_0": { "uri": "audio/sfx/materials/stone_run_0.ogg" },
+		"stone_run_1": { "uri": "audio/sfx/materials/stone_run_1.ogg" },
+		"stone_run_2": { "uri": "audio/sfx/materials/stone_run_2.ogg" },
+		"stone_run_3": { "uri": "audio/sfx/materials/stone_run_3.ogg" },
+		"stone_walk_0": { "uri": "audio/sfx/materials/stone_walk_0.ogg" },
+		"stone_walk_1": { "uri": "audio/sfx/materials/stone_walk_1.ogg" },
+		"stone_walk_2": { "uri": "audio/sfx/materials/stone_walk_2.ogg" },
+		"stone_walk_3": { "uri": "audio/sfx/materials/stone_walk_3.ogg" },
+		"stone_sneak_0": { "uri": "audio/sfx/materials/stone_sneak_0.ogg" },
+		"stone_sneak_1": { "uri": "audio/sfx/materials/stone_sneak_1.ogg" },
+		"stone_sneak_2": { "uri": "audio/sfx/materials/stone_sneak_2.ogg" },
+		"stone_sneak_3": { "uri": "audio/sfx/materials/stone_sneak_3.ogg" },
+		"water_run_0": { "uri": "audio/sfx/materials/water_run_0.ogg" },
+		"water_run_1": { "uri": "audio/sfx/materials/water_run_1.ogg" },
+		"water_run_2": { "uri": "audio/sfx/materials/water_run_2.ogg" },
+		"water_run_3": { "uri": "audio/sfx/materials/water_run_3.ogg" },
+		"water_walk_0": { "uri": "audio/sfx/materials/water_walk_0.ogg" },
+		"water_walk_1": { "uri": "audio/sfx/materials/water_walk_1.ogg" },
+		"water_walk_2": { "uri": "audio/sfx/materials/water_walk_2.ogg" },
+		"water_walk_3": { "uri": "audio/sfx/materials/water_walk_3.ogg" },
+		"water_sneak_0": { "uri": "audio/sfx/materials/water_sneak_0.ogg" },
+		"water_sneak_1": { "uri": "audio/sfx/materials/water_sneak_1.ogg" },
+		"water_sneak_2": { "uri": "audio/sfx/materials/water_sneak_2.ogg" },
+		"water_sneak_3": { "uri": "audio/sfx/materials/water_sneak_3.ogg" },
+		"water_swim_0": { "uri": "audio/sfx/materials/water_swim_0.ogg" },
+		"water_swim_1": { "uri": "audio/sfx/materials/water_swim_1.ogg" },
+		"water_swim_2": { "uri": "audio/sfx/materials/water_swim_2.ogg" },
+		"water_swim_3": { "uri": "audio/sfx/materials/water_swim_3.ogg" },
+		"wood_run_0": { "uri": "audio/sfx/materials/wood_run_0.ogg" },
+		"wood_run_1": { "uri": "audio/sfx/materials/wood_run_1.ogg" },
+		"wood_run_2": { "uri": "audio/sfx/materials/wood_run_2.ogg" },
+		"wood_run_3": { "uri": "audio/sfx/materials/wood_run_3.ogg" },
+		"wood_walk_0": { "uri": "audio/sfx/materials/wood_walk_0.ogg" },
+		"wood_walk_1": { "uri": "audio/sfx/materials/wood_walk_1.ogg" },
+		"wood_walk_2": { "uri": "audio/sfx/materials/wood_walk_2.ogg" },
+		"wood_walk_3": { "uri": "audio/sfx/materials/wood_walk_3.ogg" },
+		"wood_sneak_0": { "uri": "audio/sfx/materials/wood_sneak_0.ogg" },
+		"wood_sneak_1": { "uri": "audio/sfx/materials/wood_sneak_1.ogg" },
+		"wood_sneak_2": { "uri": "audio/sfx/materials/wood_sneak_2.ogg" },
+		"wood_sneak_3": { "uri": "audio/sfx/materials/wood_sneak_3.ogg" },
+		"big_splash_1": { "uri": "audio/sfx/splash/splash_big_1.ogg" },
+		"big_splash_2": { "uri": "audio/sfx/splash/splash_big_2.ogg" },
+		"exit_splash_1": { "uri": "audio/sfx/splash/splash_exit_1.ogg" },
+		"exit_splash_2": { "uri": "audio/sfx/splash/splash_exit_2.ogg" },
+		"exit_splash_3": { "uri": "audio/sfx/splash/splash_exit_3.ogg" },
+		"splash_1": { "uri": "audio/sfx/splash/splash_1.ogg" },
+		"splash_2": { "uri": "audio/sfx/splash/splash_2.ogg" },
+		"splash_3": { "uri": "audio/sfx/splash/splash_3.ogg" }
+	}
+}
