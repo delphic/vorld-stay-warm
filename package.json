@@ -1,0 +1,12 @@
+{
+	"name": "vorld-archipelago",
+	"version": "0.1.0",
+	"description": "WebGL / JS Voxel Game",
+	"author": "delphic",
+	"license": "MIT",
+	"homepage": "https://delphic.me.uk/vorld-archipelago",
+	"private": true,
+	"devDependencies": {
+		"eslint": "^8.11.0"
+	}
+}
