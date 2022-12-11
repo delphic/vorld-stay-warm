@@ -776,6 +776,11 @@ module.exports = (function(){
 						blockInventory.splice(blockIndex, 1); // Remove placed block
 					}
 	
+					Audio.play({
+						uri: pickMaterialSfxUri(gameConfig.materials, BlockConfig.getBlockTypeDefinition(vorld, blockToPlace).material, "add"),
+						mixer: Audio.mixers["sfx"]
+					});
+
 					let [ x, y, z ] = blockPlacementInfo.position;
 					if (parameters.onBlockPlaced) {
 						parameters.onBlockPlaced(blockToPlace, x, y, z);
@@ -804,6 +809,11 @@ module.exports = (function(){
 					}
 	
 					if (canPickupBlock || canRemoveBlock) {
+						Audio.play({
+							uri: pickMaterialSfxUri(gameConfig.materials, BlockConfig.getBlockTypeDefinition(vorld, blockToRemove).material, "remove"),
+							mixer: Audio.mixers["sfx"]
+						});
+
 						vorldController.removeBlock(vorld, x, y, z);
 	
 						if (parameters.onBlockRemoved) {
