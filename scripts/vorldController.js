@@ -117,7 +117,7 @@ module.exports = (function(){
 		// "half" - block up can only be up or down, based on normal or fract(y) if on sideways face
 		// "steps" - block up as with half, but front of steps towards camera
 
-		let generate = (vorld, bounds, id, terrainRules, callback, progressDelegate) => {
+		let generate = (vorld, bounds, id, terrainRules, stages, callback, progressDelegate) => {
 			let generationConfig = {
 				jobType: "terrain",
 				seed: vorld.seed,
@@ -145,10 +145,45 @@ module.exports = (function(){
 						let elapsed = Date.now() - startTime;
 						console.log("Generation pass took " + elapsed + "ms (" + efficiency + "%)");
 					}
-					lightingPass(vorld, bounds, callback, progressDelegate);
+					if (stages && stages.length) {
+						stagePass(vorld, bounds, stages, 0, callback, progressDelegate);
+					} else {
+						lightingPass(vorld, bounds, callback, progressDelegate);
+					}
 				});
 	
 			return vorld;
+		};
+
+		let stagePass = (vorld, bounds, stages, index, callback, progressDelegate) => {
+			// execute additional passes on stages one by one
+			// then perform lighting pass
+			// Note - only one thread used at at time: 
+			// could probably have some stages execute on sets of bounds
+			// this would allow for passing of slices of vorld rather than the whole thing
+			// Right now "stages" are just an array of jobType to pass to the worker
+			// In order to use this you must create a custom vorld worker which can handle
+			// your custom job types stages 
+			if (index < stages.length) {
+				let worker = workerPool.requestWorker();
+				worker.onmessage = (e) => {
+					if (e.data.complete) {
+						workerPool.returnWorker(worker);
+					}
+					let data = e.data; 
+					if (data.complete) {
+						if (data.vorld) {
+							Vorld.tryMerge(vorld, data.vorld);
+						}
+						index += 1;
+						// TODO: call progress delegate index + 1 / stages.length
+						stagePass(vorld, bounds, stages, index, callback, progressDelegate);
+					}
+				};
+				worker.postMessage({ jobType: stages[index], vorld: vorld });
+			} else {
+				lightingPass(vorld, bounds, callback, progressDelegate);
+			}
 		};
 
 		let lightingPass = (vorld, bounds, callback, progressDelegate) => {
@@ -273,7 +308,7 @@ module.exports = (function(){
 				seed: config.seed ? config.seed : Random.generateSeed(32),
 				blockConfig: blockConfig
 			});
-			return generate(vorld, bounds, id, terrainRules, callback, progressDelegate);
+			return generate(vorld, bounds, id, terrainRules, config.stages, callback, progressDelegate);
 		};
 
 		controller.clear = (vorld) => {
