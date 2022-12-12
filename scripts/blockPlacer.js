@@ -179,6 +179,7 @@ module.exports = (function(){
 
 	exports.placeBlock = (vorldController, vorld, blockToPlace, hitInfo, castDirection, callback) => {
 		// then convert to TryGetPlacement and have the consuming code call vorldController.addBlock
+		// presumably this will allow us to check if it's a valid placement, e.g. plants on soil / grass
 		let placement = BlockConfig.getBlockTypeDefinition(vorld, blockToPlace).placement;
 		calculateBlockPlacementInfo(blockPlacementInfo, hitInfo, castDirection, placement);
 		vorldController.addBlock(
@@ -191,7 +192,11 @@ module.exports = (function(){
 			blockPlacementInfo.forward, 
 			callback);
 
-		return blockPlacementInfo; 
+		return blockPlacementInfo;
+		// currently returning blockPlacement to get position
+		// you could arguably get this from the hitInfo.position + hitInfo.normal
+		// however if we're changing to try get placement then this is what we'll
+		// end up with anyway
 	};
 
 	return exports;
