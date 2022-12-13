@@ -2,14 +2,17 @@ const Fury = require('fury');
 const { Maths, GameLoop } = Fury;
 const { vec3 } = Maths;
 const Audio = require('./audio'); // Note this clashes with global Audio constructor
+const Models = require('./models');
 const VorldController = require('./vorldController');
 const Player = require('./player');
+const Vorld = require('../vorld');
 
 module.exports = (function(){
 	let exports = {};
 
 	let debug = true;
 	let config = null;
+	let models = {};
 	let atlasImage = null;
 
 	let camera, cameraRatio = 1.0;
@@ -19,6 +22,8 @@ module.exports = (function(){
 	let vorld = null;
 	let world = { boxes: [], entities: [] };
 	let player = null;
+
+	let testModel = null;
 
 	let start = () => {
 		GameLoop.start();
@@ -35,6 +40,17 @@ module.exports = (function(){
 			() => {
 				console.log("World generation complete");
 				spawnPlayer();
+				let modelInstance = Models.instantiate({ id: "core", scene: scene, position: [ -8, 0, 8 ], vorldController: vorldController });
+				let sceneObjects = modelInstance.sceneObjects;
+				let lightLevel = Vorld.Lighting.interpolateLight(vorld, modelInstance.transform.position);
+				let sunlightLevel = Vorld.Lighting.interpolateSunlight(vorld, modelInstance.transform.position);
+				for (let i = 0, l = sceneObjects.length; i < l; i++) {
+					sceneObjects[i].lightLevel = lightLevel;
+					sceneObjects[i].sunlightLevel = sunlightLevel;
+				}
+				modelInstance.lightProbePosition = []
+				vec3.scaleAndAdd(modelInstance.lightProbePosition, modelInstance.transform.position, Maths.vec3Y, 0.5); // Could get the center of mesh bounds if we wanted to be more generic
+				testModel = modelInstance;
 			},
 			(stage, count, total) => { /* progress! */ });
 	};
@@ -44,7 +60,18 @@ module.exports = (function(){
 			player.update(elapsed);
 			Audio.setListenerPosition(player.position);
 		}
-		// TODO: Run some logic!
+
+		if (testModel) {
+			let sceneObjects = testModel.sceneObjects;
+			vec3.scaleAndAdd(testModel.lightProbePosition, testModel.transform.position, Maths.vec3Y, 0.5);
+			let lightLevel = Vorld.Lighting.interpolateLight(vorld, testModel.lightProbePosition);
+			let sunlightLevel = Vorld.Lighting.interpolateSunlight(vorld, testModel.lightProbePosition);
+			for (let i = 0, l = sceneObjects.length; i < l; i++) {
+				sceneObjects[i].lightLevel = lightLevel;
+				sceneObjects[i].sunlightLevel = sunlightLevel;
+			}
+			// ^^ Amusingly this shows up the delay on lighting changes being implemented would be fix if lighting propogation was part of the off thread chunks
+		}
 		scene.render();
 	}
 
@@ -157,6 +184,9 @@ module.exports = (function(){
 
 		assetsLoading++;
 		Audio.fetchAudio(Object.values(config.sfx).map(x => x.uri), assetLoaded);
+
+		assetsLoading++;
+		Models.fetchModels(config.models, assetLoaded);
 	};
 
 	return exports;

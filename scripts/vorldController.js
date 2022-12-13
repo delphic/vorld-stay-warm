@@ -257,6 +257,7 @@ module.exports = (function(){
 		};
 
 		let setLightingConfig = (id) => {
+			controller.lightingConfigId = id;
 			let { fogColor, fogDensity, ambientMagnitude, sunlightMagnitude: directionalMagnitude } = lightingConfig[id];
 			let materialProperties = { 
 				fogColor: [],
@@ -273,6 +274,15 @@ module.exports = (function(){
 
 			// TODO: Would be nice to be able to set clear color on scene instead
 			Renderer.clearColor(materialProperties.fogColor[0], materialProperties.fogColor[1], materialProperties.fogColor[2], 1.0);
+		};
+
+		controller.addMaterial = (id, material) => {
+			if (!materials[id]) {
+				materials[id] = material;
+				setLightingConfig(controller.lightingConfigId);
+			} else {
+				console.error("Unable to add material with id " + id + " as it is already in the material list");
+			}
 		};
 
 		let instantiateWorkerResponseMesh = (data, vorld) => {
@@ -528,12 +538,12 @@ module.exports = (function(){
 		result.cutoutMaterial = Fury.Material.create({
 			shader: cutoutShader,
 			texture: nearestFilteredTextureArray,
-			properties: { "fogColor": vec3.clone(skyColor), "fogDensity": 0.005, "ambientMagnitude": 0.5, "directionalMagnitude": 0.5 }
+			properties: { "fogColor": vec3.clone(skyColor), "fogDensity": 0.005, "ambientMagnitude": 0.75, "directionalMagnitude": 0.5 }
 		});
 		result.alphaMaterial = Fury.Material.create({
 			shader: shader,
 			texture: textureArray,
-			properties: { alpha: true, blendSeparate: true, "fogColor": vec3.clone(skyColor), "fogDensity": 0.005, "ambientMagnitude": 0.5, "directionalMagnitude": 0.5 }
+			properties: { alpha: true, blendSeparate: true, "fogColor": vec3.clone(skyColor), "fogDensity": 0.005, "ambientMagnitude": 0.75, "directionalMagnitude": 0.5 }
 		});
 
 		return result;
