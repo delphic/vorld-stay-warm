@@ -770,13 +770,9 @@ module.exports = (function(){
 			let cameraLookDirection = Maths.vec3Pool.request();
 			camera.getLookDirection(cameraLookDirection);
 
-			let pickedObject = null;
-			if (!player.heldObject)
-			{
-				pickedObject = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "carriable");
-			}
+			let pickedEntity = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance);
 
-			if (!player.heldObject && !pickedObject && BlockPlacer.raycast(hitInfo, vorld, camera.position, cameraLookDirection, placementDistance)) {
+			if (!player.heldObject && !pickedEntity && BlockPlacer.raycast(hitInfo, vorld, camera.position, cameraLookDirection, placementDistance)) {
 				if (attemptPlacement && blockToPlace) {
 					let blockPlacementInfo = BlockPlacer.placeBlock(vorldController, vorld, blockToPlace, hitInfo, cameraLookDirection);
 	
@@ -848,13 +844,15 @@ module.exports = (function(){
 			Maths.vec3Pool.return(cameraLookDirection);
 			
 			// TODO: Pick up input to prefs
-			if (!player.heldObject && pickedObject && Input.mouseDown(0, true)) {
-				// Pick up object
-				player.heldObject = pickedObject;
+			if (!player.heldObject && pickedEntity && Input.mouseDown(0, true)) {
+				if (pickedEntity.carriable) {
+					player.heldObject = pickedEntity;
+				} else {
+					// Check for explicit carriable object
+					player.heldObject = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "carriable");
+				}
 			} else if (player.heldObject && Input.mouseDown(0, true)) {
-				// Drop object
-
-				let socketObject = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "socket");
+				let socketObject = pickedEntity.socket ? pickedEntity : world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "socket");
 				if (socketObject) {
 					vec3.copy(player.heldObject.transform.position, socketObject.socket.transform.position);
 				} else {
