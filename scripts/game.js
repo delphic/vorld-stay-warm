@@ -24,6 +24,8 @@ module.exports = (function(){
 	let world = { boxes: [], entities: [] };
 	let player = null;
 
+	let winMachine = null;
+
 	let start = () => {
 		GameLoop.start();
 		let generationConfig =  { 
@@ -39,16 +41,37 @@ module.exports = (function(){
 			() => {
 				console.log("World generation complete");
 				spawnPlayer();
-				spawnModelEntity("core", [ -8, 0, 8 ]).addComponent("carriable", {});
-				let entity = spawnModelEntity("powered_machine", [8, 0, 8]);
-				entity.addComponent("socket", { transform: entity.transform });
+				let machine = {
+					sockets: []
+				};
+				for (let i = 0; i < 3; i++) {
+					spawnModelEntity("core", [ -8 + 8 * i, 0, 8 ]).addComponent("carriable", {});
+					let entity = spawnModelEntity("powered_machine", [-2 + 2 * i, 0, 16 ]);
+					let socket = { transform: entity.transform, filled: false }
+					entity.addComponent("socket", socket);
+					machine.sockets.push(socket);
+				}
+				winMachine = machine;
 			},
 			(stage, count, total) => { /* progress! */ });
 	};
 
+	let hasWon = false;
+
 	let loop = (elapsed) => {
 		for (let i = 0, l = world.entities.length; i < l; i++) {
 			world.entities[i].update(elapsed);
+		}
+
+		if (!hasWon && winMachine) {
+			let allFull = true;
+			for (let i = 0, l = winMachine.sockets.length; i < l; i++) {
+				allFull = allFull && winMachine.sockets[i].filled; 
+			}
+			if (allFull) {
+				hasWon = true;
+				alert("You Win!");
+			}
 		}
 
 		if (player) {

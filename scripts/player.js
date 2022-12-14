@@ -847,14 +847,22 @@ module.exports = (function(){
 			if (!player.heldObject && pickedEntity && Input.mouseDown(0, true)) {
 				if (pickedEntity.carriable) {
 					player.heldObject = pickedEntity;
+					// Would be nice to be able to shift it from the main scene to the overlay scene but keep the same object rather than making a duplicate
+					// Still if it was a duplicate could have different components (e.g. no collider on the held one)
 				} else {
 					// Check for explicit carriable object
 					player.heldObject = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "carriable");
+				}
+				if (player.heldObject && player.heldObject.socket) {
+					player.heldObject.socket.filled = false;
+					player.heldObject.socket = null;
 				}
 			} else if (player.heldObject && Input.mouseDown(0, true)) {
 				let socketObject = pickedEntity.socket ? pickedEntity : world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "socket");
 				if (socketObject) {
 					vec3.copy(player.heldObject.transform.position, socketObject.socket.transform.position);
+					socketObject.socket.filled = true;
+					player.heldObject.socket = socketObject.socket;
 				} else {
 					// TODO: Remove this dropping code once we make them psuedo physics objects
 					if (VorldPhysics.raycast(hitPoint, vorld, player.heldObject.collider.bounds.center, castDirection, 10)) {
