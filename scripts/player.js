@@ -21,8 +21,9 @@ module.exports = (function(){
 	let hitInfo = { position: [], normal: [], point: [] };
 
 	let hitPoint = vec3.create();
-	let castDirection = vec3.fromValues(0, -1, 0);
+	const castDirection = vec3.fromValues(0, -1, 0);
 	// TODO: ^^ vec3Ext.Up / Down / Left / Right / Forward / Back (just be sure which way is right? +x?) 
+	// Or you know just have negX, negY, negZ and it does what it says on the tin
 
 	let vec3ScaleXZ = (out, a, scale) => {
 		let y = a[1];
@@ -768,7 +769,14 @@ module.exports = (function(){
 
 			let cameraLookDirection = Maths.vec3Pool.request();
 			camera.getLookDirection(cameraLookDirection);
-			if (BlockPlacer.raycast(hitInfo, vorld, camera.position, cameraLookDirection, placementDistance)) {
+
+			let pickedObject = null;
+			if (!player.heldObject)
+			{
+				pickedObject = world.pickClosestCarriableEntity(hitPoint, camera.position, cameraLookDirection, placementDistance);
+			}
+
+			if (!player.heldObject && !pickedObject && BlockPlacer.raycast(hitInfo, vorld, camera.position, cameraLookDirection, placementDistance)) {
 				if (attemptPlacement && blockToPlace) {
 					let blockPlacementInfo = BlockPlacer.placeBlock(vorldController, vorld, blockToPlace, hitInfo, cameraLookDirection);
 	
@@ -839,7 +847,28 @@ module.exports = (function(){
 			}
 			Maths.vec3Pool.return(cameraLookDirection);
 			
-			// NOTE: Remove held item lerp code from vorld-archipelago
+			// TODO: Pick up input to prefs
+			if (!player.heldObject && pickedObject && Input.mouseDown(0, true)) {
+				// Pick up object
+				player.heldObject = pickedObject;
+			} else if (player.heldObject && Input.mouseDown(0, true)) {
+				// Drop object
+				// TODO: Remove this dropping code once we make them psuedo physics objects
+				if (VorldPhysics.raycast(hitPoint, vorld, player.heldObject.collider.bounds.center, castDirection, 10)) {
+					vec3.copy(player.heldObject.transform.position, hitPoint);
+				}
+				player.heldObject = null;
+			}
+
+			if (player.heldObject) {
+				let position = player.heldObject.transform.position;
+				vec3.negate(position, Maths.vec3Z);
+				vec3.transformQuat(position, position, camera.rotation);
+				vec3.subtract(position, position, player.heldObject.collider.offset);
+				position[1] -= 0.25; // Offset want it a little below the camera
+				vec3.add(position, position, camera.position);
+				// Would be nice to rotate the object in the X/Z plane to match - we'd have to reset the rotation on drop though given that non of the physics is object aligned
+			}
 		};
 
 		player.teleport = (pos) => {

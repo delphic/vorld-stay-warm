@@ -2,17 +2,18 @@ const Fury = require('fury');
 const { Maths, GameLoop } = Fury;
 const { vec3 } = Maths;
 const Audio = require('./audio'); // Note this clashes with global Audio constructor
+const GameEntity = require('./gameEntity');
 const Models = require('./models');
 const VorldController = require('./vorldController');
 const Player = require('./player');
 const Vorld = require('../vorld');
+const { Physics } = require('fury');
 
 module.exports = (function(){
 	let exports = {};
 
 	let debug = true;
 	let config = null;
-	let models = {};
 	let atlasImage = null;
 
 	let camera, cameraRatio = 1.0;
@@ -22,8 +23,6 @@ module.exports = (function(){
 	let vorld = null;
 	let world = { boxes: [], entities: [] };
 	let player = null;
-
-	let testModel = null;
 
 	let start = () => {
 		GameLoop.start();
@@ -40,38 +39,21 @@ module.exports = (function(){
 			() => {
 				console.log("World generation complete");
 				spawnPlayer();
-				let modelInstance = Models.instantiate({ id: "core", scene: scene, position: [ -8, 0, 8 ], vorldController: vorldController });
-				let sceneObjects = modelInstance.sceneObjects;
-				let lightLevel = Vorld.Lighting.interpolateLight(vorld, modelInstance.transform.position);
-				let sunlightLevel = Vorld.Lighting.interpolateSunlight(vorld, modelInstance.transform.position);
-				for (let i = 0, l = sceneObjects.length; i < l; i++) {
-					sceneObjects[i].lightLevel = lightLevel;
-					sceneObjects[i].sunlightLevel = sunlightLevel;
-				}
-				modelInstance.lightProbePosition = []
-				vec3.scaleAndAdd(modelInstance.lightProbePosition, modelInstance.transform.position, Maths.vec3Y, 0.5); // Could get the center of mesh bounds if we wanted to be more generic
-				testModel = modelInstance;
+				spawnCarriableEntity("core", [ -8, 0, 8 ]);
 			},
 			(stage, count, total) => { /* progress! */ });
 	};
 
 	let loop = (elapsed) => {
+		for (let i = 0, l = world.entities.length; i < l; i++) {
+			world.entities[i].update(elapsed);
+		}
+
 		if (player) {
 			player.update(elapsed);
 			Audio.setListenerPosition(player.position);
 		}
 
-		if (testModel) {
-			let sceneObjects = testModel.sceneObjects;
-			vec3.scaleAndAdd(testModel.lightProbePosition, testModel.transform.position, Maths.vec3Y, 0.5);
-			let lightLevel = Vorld.Lighting.interpolateLight(vorld, testModel.lightProbePosition);
-			let sunlightLevel = Vorld.Lighting.interpolateSunlight(vorld, testModel.lightProbePosition);
-			for (let i = 0, l = sceneObjects.length; i < l; i++) {
-				sceneObjects[i].lightLevel = lightLevel;
-				sceneObjects[i].sunlightLevel = sunlightLevel;
-			}
-			// ^^ Amusingly this shows up the delay on lighting changes being implemented would be fix if lighting propogation was part of the off thread chunks
-		}
 		scene.render();
 	}
 
@@ -126,6 +108,117 @@ module.exports = (function(){
 
 			// TODO: Trigger this from a user gesture so we can request pointer lock here and then...
 			// add a pause menu so we can get it back on clicking resume if we esc to remove it
+	};
+
+	let spawnCarriableEntity = (modelId, position) => {
+		let entity = GameEntity.create();
+		let model = Models.instantiate({ id: modelId, scene: scene, position: position, vorldController: vorldController });
+		
+		model.lightProbePosition = vec3.clone(model.transform.position);
+		
+		model.updateLighting = function() {
+			vec3.scaleAndAdd(model.lightProbePosition, model.transform.position, Maths.vec3Y, 0.5);
+			// ^^ Could get the center of mesh bounds if we wanted to be more generic
+			let sceneObjects = model.sceneObjects;
+			let lightLevel = Vorld.Lighting.interpolateLight(vorld, model.lightProbePosition);
+			let sunlightLevel = Vorld.Lighting.interpolateSunlight(vorld, model.lightProbePosition);
+			for (let i = 0, l = sceneObjects.length; i < l; i++) {
+				sceneObjects[i].lightLevel = lightLevel;
+				sceneObjects[i].sunlightLevel = sunlightLevel;
+			}
+			// ^^ Amusingly this shows up the delay on lighting changes being implemented would be fix if lighting propogation was part of the off thread chunks
+		};
+		model.updateLighting();
+
+		model.update = function(_elapsed) {
+			model.updateLighting();
+		}
+		entity.addComponent("model", model);
+
+		entity.transform = model.transform;
+
+		// Add centered bounds to scene objects and one to the entity
+		// NOTE: Would create an invalid bounds if there were no scene objects!
+		let sceneObjects = model.sceneObjects;
+		let min = [ Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY ], max = [ Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY ];
+		for (let i = 0, l = sceneObjects.length; i < l; i++) {
+			let meshBounds = sceneObjects[i].mesh.bounds;
+			let center = vec3.clone(meshBounds.center);
+			sceneObjects[i].transform.updateMatrix();
+			vec3.transformMat4(center, center, sceneObjects[i].transform.matrix); // This should give us world position
+			let size = vec3.clone(meshBounds.size);
+			sceneObjects[i].bounds = Fury.Physics.Box.create({ center: center, size: size });
+			// HACK: Box is an AABB so does not adjust for rotation (all models fit in a cube so it's not too bad for first pass)
+			vec3.min(min, min, sceneObjects[i].bounds.min);
+			vec3.max(max, max, sceneObjects[i].bounds.max);
+		}
+
+		let collider = {};
+		collider.bounds = Fury.Physics.Box.create({ min: min, max: max });
+		// HACK: Box is an AABB so does not adjust for rotation
+		collider.offset = vec3.subtract([], collider.bounds.center, model.transform.position);
+		collider.lastPosition = [ 0, 0, 0 ];
+		collider.updateBounds = function() {
+			if (!vec3.equals(collider.lastPosition, model.transform.position)) {
+				// Move the bounding boxes, would be nice if this could be automatic when you change the position
+				vec3.add(collider.bounds.center, collider.offset, model.transform.position);
+				collider.bounds.recalculateMinMax();
+				let sceneObjects = model.sceneObjects;
+				for (let i = 0, l = sceneObjects.length; i < l; i++) {
+					let center = sceneObjects[i].bounds.center;
+					vec3.copy(center, sceneObjects[i].mesh.bounds.center);
+					sceneObjects[i].transform.updateMatrix();
+					vec3.transformMat4(center, center, sceneObjects[i].transform.matrix); // This should give us world position
+					sceneObjects[i].bounds.recalculateMinMax();
+				}
+				vec3.copy(collider.lastPosition, model.transform.position);
+			}
+		};
+		collider.updateBounds();
+
+		collider.raycast = function(raycastHitPoint, pickPos, pickDir) {
+			if (Physics.Box.rayCast(raycastHitPoint, pickPos, pickDir, collider.bounds)) {
+				let hitSceneObject = null;
+				let minToi = Number.MAX_VALUE;
+				let sceneObjects = model.sceneObjects;
+				for (let i = 0, l = sceneObjects.length; i < l; i++) {
+					let toi = Physics.Box.rayCast(raycastHitPoint, pickPos, pickDir, sceneObjects[i].bounds);
+					if (toi && toi < minToi) {
+						minToi = toi;
+						hitSceneObject = sceneObjects[i];
+					}
+				}
+				if (hitSceneObject) {
+					return minToi;
+				}
+			}
+			return 0;
+		};
+
+		collider.update = function(_elapsed) {
+			collider.updateBounds();
+		};
+		entity.addComponent("collider", collider);
+
+		entity.addComponent("carriable", {});
+		
+		world.entities.push(entity);
+	};
+
+	world.pickClosestCarriableEntity = function(raycastHitPoint, pickPos, pickDir, range) {
+		let minToi = range;
+		let result = null;
+		for (let i = 0, l = world.entities.length; i < l; i++) {
+			let entity = world.entities[i];
+			if (entity.carriable && entity.collider) {
+				let toi = entity.collider.raycast(raycastHitPoint, pickPos, pickDir);
+				if (toi && toi < minToi) {
+					minToi = toi;
+					result = entity;
+				}
+			}
+		}
+		return result;
 	};
 
 	exports.init = function({ canvas, gameConfig }) {
