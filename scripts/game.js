@@ -145,17 +145,9 @@ module.exports = (function(){
 
 		const coolingRatePerDegree = 0.001;
 
+		/// Takes normalised shelter value 1.0 maximum shelter and returns an exposure factor 
 		let mapShelterToExposureFactor = function(shelter) {
-			if (shelter > 2) {
-				return 0.5;
-			} 
-			if (shelter > 1) {
-				return 0.75;
-			}
-			if (shelter > 0) {
-				return 0;
-			}
-			return 1.5;
+			return 1.0 / (1.0 + shelter);
 		};
 
 		let mapBodyTemperatureToWarmingRate = function(bodyTemperature) {
@@ -168,6 +160,7 @@ module.exports = (function(){
 		}; // ^^ Might be nice if sigmoid curves was somewhere in Fury Utils
 
 		warmth.update = function(elapsed) {
+			warmth.shelter = calculateShelter(vorld, player.position);
 			let exposureFactor = mapShelterToExposureFactor(warmth.shelter);
 			let bodyWarmth = mapBodyTemperatureToWarmingRate(warmth.bodyTemperature);
 			let cooling = coolingRatePerDegree * exposureFactor * (warmth.bodyTemperature - warmth.airTemperature);
@@ -189,6 +182,55 @@ module.exports = (function(){
 		world.entities.push(playerEntity);
 
 		return player;
+	};
+
+	// Extension for Fury Maths - TODO Move to Fury
+	Fury.Maths.vec3NegX = [ -1, 0 , 0];
+	Fury.Maths.vec3NegY = [ 0, -1, 0 ];
+	Fury.Maths.vec3NegZ = [ 0, 0, -1 ];
+
+	let calculateShelter = (vorld, position) => {
+		let [ x, y, z ] = position;
+		x = Math.floor(x);
+		y = Math.floor(y);
+		z = Math.floor(z);
+
+		let blockPosition = Fury.Maths.vec3Pool.request();
+		vec3.set(blockPosition, x, y, z);
+
+		// Really hacky estimation of shelter level from sunlight light  
+
+		let lightLevel = Vorld.Lighting.getBlockSunlight(vorld, x, y, z);
+		// Increasing delta means that direction is towards less sheltered / more exposed
+		// Decreasing delta means that direction is towards more sheltered / less exposed
+		let northDelta = getSunlightDelta(vorld, blockPosition, Fury.Maths.vec3NegZ);
+		let eastDelta = getSunlightDelta(vorld, blockPosition, Fury.Maths.vec3X);
+		let southDelta = getSunlightDelta(vorld, blockPosition, Fury.Maths.vec3Z);
+		let westDelta = getSunlightDelta(vorld, blockPosition, Fury.Maths.vec3NegX);
+
+		// This overvalues hugging walls outdoors so could do a max on the absolute value to reduce it's effectiveness
+		// (unless wind was actually directional in which case it might even undervalue it).
+		// An alternative to this would be to do some raycasts see how far you can get, although we should probably
+		// factor sunlight level / outside in somehow, as you could be in a huge very sheltered room. 
+		// This also wouldn't work if we had something like glass which would not stop sunlight propogation but would 
+		// presumably give shelter.
+		// Could we 'cast' horizontally against the yMax ? i.e. how far until "outdoors" that would differentiate between
+		// indoors and outdoors, wouldn't be effected by glass ceilings or alike, would arguably overvalue huge pavilons 
+		// but oh well. Well if you can get to outside in opposite direction we could reduce / negate the value of the distance? 
+		// i.e. if the wind can just whistle through it's no shelter at all... :thinking: - that seems good to me tbh.
+
+		Fury.Maths.vec3Pool.return(blockPosition);
+
+		let averageDelta = (northDelta + eastDelta + southDelta + westDelta) / 4.0;
+		return 1.0 - (lightLevel + averageDelta) / 15.0;
+
+	};
+
+	let getSunlightDelta = (vorld, position, direction) => {
+		let [ x0, y0, z0 ] = position;
+		let [ dx, dy, dz ] = direction
+		let x1 = x0 + dx, y1 = y0 + dy, z1 = z0 + dz;
+		return Vorld.Lighting.getBlockSunlight(vorld, x1, y1, z1) - Vorld.Lighting.getBlockSunlight(vorld, x0, y0, z0);
 	};
 
 	let spawnModelEntity = (modelId, position) => {
