@@ -39,7 +39,9 @@ module.exports = (function(){
 			() => {
 				console.log("World generation complete");
 				spawnPlayer();
-				spawnCarriableEntity("core", [ -8, 0, 8 ]);
+				spawnModelEntity("core", [ -8, 0, 8 ]).addComponent("carriable", {});
+				let entity = spawnModelEntity("powered_machine", [8, 0, 8]);
+				entity.addComponent("socket", { transform: entity.transform });
 			},
 			(stage, count, total) => { /* progress! */ });
 	};
@@ -110,7 +112,7 @@ module.exports = (function(){
 			// add a pause menu so we can get it back on clicking resume if we esc to remove it
 	};
 
-	let spawnCarriableEntity = (modelId, position) => {
+	let spawnModelEntity = (modelId, position) => {
 		let entity = GameEntity.create();
 		let model = Models.instantiate({ id: modelId, scene: scene, position: position, vorldController: vorldController });
 		
@@ -145,7 +147,7 @@ module.exports = (function(){
 			let meshBounds = sceneObjects[i].mesh.bounds;
 			let center = vec3.clone(meshBounds.center);
 			sceneObjects[i].transform.updateMatrix();
-			vec3.transformMat4(center, center, sceneObjects[i].transform.matrix); // This should give us world position
+			vec3.transformMat4(center, center, sceneObjects[i].transform.matrix);
 			let size = vec3.clone(meshBounds.size);
 			sceneObjects[i].bounds = Fury.Physics.Box.create({ center: center, size: size });
 			// HACK: Box is an AABB so does not adjust for rotation (all models fit in a cube so it's not too bad for first pass)
@@ -168,7 +170,7 @@ module.exports = (function(){
 					let center = sceneObjects[i].bounds.center;
 					vec3.copy(center, sceneObjects[i].mesh.bounds.center);
 					sceneObjects[i].transform.updateMatrix();
-					vec3.transformMat4(center, center, sceneObjects[i].transform.matrix); // This should give us world position
+					vec3.transformMat4(center, center, sceneObjects[i].transform.matrix);
 					sceneObjects[i].bounds.recalculateMinMax();
 				}
 				vec3.copy(collider.lastPosition, model.transform.position);
@@ -199,18 +201,18 @@ module.exports = (function(){
 			collider.updateBounds();
 		};
 		entity.addComponent("collider", collider);
-
-		entity.addComponent("carriable", {});
 		
 		world.entities.push(entity);
+
+		return entity;
 	};
 
-	world.pickClosestCarriableEntity = function(raycastHitPoint, pickPos, pickDir, range) {
+	world.pickClosestEntity = function(raycastHitPoint, pickPos, pickDir, range, tag) {
 		let minToi = range;
 		let result = null;
 		for (let i = 0, l = world.entities.length; i < l; i++) {
 			let entity = world.entities[i];
-			if (entity.carriable && entity.collider) {
+			if ((!tag || entity[tag]) && entity.collider) {
 				let toi = entity.collider.raycast(raycastHitPoint, pickPos, pickDir);
 				if (toi && toi < minToi) {
 					minToi = toi;

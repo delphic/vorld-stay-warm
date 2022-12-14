@@ -773,7 +773,7 @@ module.exports = (function(){
 			let pickedObject = null;
 			if (!player.heldObject)
 			{
-				pickedObject = world.pickClosestCarriableEntity(hitPoint, camera.position, cameraLookDirection, placementDistance);
+				pickedObject = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "carriable");
 			}
 
 			if (!player.heldObject && !pickedObject && BlockPlacer.raycast(hitInfo, vorld, camera.position, cameraLookDirection, placementDistance)) {
@@ -853,9 +853,15 @@ module.exports = (function(){
 				player.heldObject = pickedObject;
 			} else if (player.heldObject && Input.mouseDown(0, true)) {
 				// Drop object
-				// TODO: Remove this dropping code once we make them psuedo physics objects
-				if (VorldPhysics.raycast(hitPoint, vorld, player.heldObject.collider.bounds.center, castDirection, 10)) {
-					vec3.copy(player.heldObject.transform.position, hitPoint);
+
+				let socketObject = world.pickClosestEntity(hitPoint, camera.position, cameraLookDirection, placementDistance, "socket");
+				if (socketObject) {
+					vec3.copy(player.heldObject.transform.position, socketObject.socket.transform.position);
+				} else {
+					// TODO: Remove this dropping code once we make them psuedo physics objects
+					if (VorldPhysics.raycast(hitPoint, vorld, player.heldObject.collider.bounds.center, castDirection, 10)) {
+						vec3.copy(player.heldObject.transform.position, hitPoint);
+					}
 				}
 				player.heldObject = null;
 			}

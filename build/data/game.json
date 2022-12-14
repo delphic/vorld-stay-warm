@@ -151,7 +151,8 @@
 		}
 	},
 	"models": {
-		"core":  { "uri": "models/core.gltf" }
+		"core":  { "uri": "models/core.gltf" },
+		"powered_machine": { "uri": "models/powered_machine.gltf" }
 	},
 	"collisionMesh": {
 		"step": [
