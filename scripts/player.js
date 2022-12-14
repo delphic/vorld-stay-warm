@@ -169,6 +169,7 @@ module.exports = (function(){
 		// Input Variables
 		let ry = 0, rx = 0;
 		let localInputVector = vec3.create();
+		player.localInputVector = localInputVector; // For public access by other components (really input should be its own component)
 		let inputVector = vec3.create();
 		let isWalking = false;
 		let attemptJump = false; 
@@ -281,7 +282,6 @@ module.exports = (function(){
 				player.velocity[1] = 0.9 * jumpDeltaV; // Slightly smaller jump when not sprinting
 			}
 		};
-
 
 		// Potential Bug:
 		// Without reducing step when not grounded if you jump whilst facing into a corner with 2 height blocks in front, adjacent blocks height one,

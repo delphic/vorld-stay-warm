@@ -40,7 +40,16 @@ module.exports = (function(){
 			generationConfig,
 			() => {
 				console.log("World generation complete");
-				spawnPlayer();
+
+				if (!vorld.meta) {
+					vorld.meta = {};
+				}
+				if (!vorld.meta.spawnPoint) {
+					vorld.meta.spawnPoint = [0, 4, 0];
+				}
+
+				player = spawnPlayer(vec3.clone(vorld.meta.spawnPoint));
+				
 				let machine = {
 					sockets: []
 				};
@@ -74,65 +83,112 @@ module.exports = (function(){
 			}
 		}
 
-		if (player) {
-			player.update(elapsed);
-			Audio.setListenerPosition(player.position);
-		}
-
 		scene.render();
 	}
 
-	let spawnPlayer = () => {
-		let spawnPoint = null;
-			if (!vorld.meta) {
-				vorld.meta = {};
+	let spawnPlayer = (position) => {
+		// TODO: Create Dynamic Material in vorld controller (?)
+		// let quadMat = Object.create(dynamicMaterial);
+		// quadMat.id = null;
+		// TODO: Create overlay scene, we probably need it
+		// orb: null, // overlayScene.add({ mesh: Fury.Mesh.create(VorldHelper.getHeldOrbMeshData()), material: unlitMaterial, position: vec3.create() }),
+		// ^^ HACK - should be able to hold more than just an orb
+		// quad: overlayScene.add({ mesh: Primitives.createQuadMesh(VorldHelper.getTileIndexBufferValueForBlock("water")), material: quadMat, position: vec3.create() }),
+		// ^^ Useful for held object logic 
+		let playerConfig = {
+			world: world,
+			vorld: vorld,
+			gameConfig: config,
+			vorldController: vorldController,
+			scene: scene,
+			position: position,
+			quad: null,
+			camera: camera,
+			size: [ 0.75, 2, 0.75 ], // BUG: If you use size 0.8 - you can walk through blocks at axis = 7 when moving from axis = 8.
+			stepHeight: 0.51,
+			placementDistance: 5.5 + Math.sqrt(3),
+			removalDistance: 5.5,
+			enableCreativeMode: false,
+			onBlockPlaced: (block, x, y, z) => { 
+				/* TODO: update any game logic based on placement */
+			},
+			onBlockRemoved: (block, x, y, z) => {
+				/* TODO: update any game logic based on placement */
+			},
+		};
+		// Massive Player!
+		// playerConfig.size = [ 4, 8, 4];
+		// playerConfig.stepHeight = 2.01;
+		// Tiny Player
+		// playerConfig.size = [ 0.25, 0.5, 0.25 ];
+		// playerConfig.stepHeight = 0.26;
+		let player = Player.create(playerConfig);
+		// TODO: Trigger this from a user gesture so we can request pointer lock here and then...
+		// add a pause menu so we can get it back on clicking resume if we esc to remove it
+
+		// Okay we've got a bastard hybrid of component based and huge monster 
+		// module but that's fine for now
+		let playerEntity = GameEntity.create();
+		playerEntity.addComponent("player", player);
+
+		playerEntity.addComponent("audioFollow", { 
+			update: (_elapsed) => { Audio.setListenerPosition(player.position); }
+		});
+
+
+		let warmth = {
+			bodyTemperature: 37,
+			airTemperature: 0,
+			shelter: 0,
+			hasDied: false, // Arguably should be on player component
+		};
+
+		const coolingRatePerDegree = 0.001;
+
+		let mapShelterToExposureFactor = function(shelter) {
+			if (shelter > 2) {
+				return 0.5;
+			} 
+			if (shelter > 1) {
+				return 0.75;
 			}
-			if (!vorld.meta.spawnPoint) {
-				vorld.meta.spawnPoint = [0, 4, 0];
+			if (shelter > 0) {
+				return 0;
 			}
-			spawnPoint = vec3.clone(vorld.meta.spawnPoint);
+			return 1.5;
+		};
 
-			// TODO: Create Dynamic Material in vorld controller (?)
-			// let quadMat = Object.create(dynamicMaterial);
-			// quadMat.id = null;
+		let mapBodyTemperatureToWarmingRate = function(bodyTemperature) {
+			// Sigmoid curve
+			// Maximum warming below ~36 degrees, None at ~37 
+			// 10 factor in exponent gives a range of ~1.0 degree
+			return 0.04 * (1.0 - (1.0 / (1.0 + Math.exp(10.0 * (36.5 - bodyTemperature)))));
+			// Note ~0.02 at cross over point implies cooling rate is ~0.001 
+			// (from the idea that at 17 degrees (diff of 20) no exposure should be stable)
+		}; // ^^ Might be nice if sigmoid curves was somewhere in Fury Utils
 
-			// TODO: Create overlay scene, we probably need it
-			// orb: null, // overlayScene.add({ mesh: Fury.Mesh.create(VorldHelper.getHeldOrbMeshData()), material: unlitMaterial, position: vec3.create() }),
-			// ^^ HACK - should be able to hold more than just an orb
-			// quad: overlayScene.add({ mesh: Primitives.createQuadMesh(VorldHelper.getTileIndexBufferValueForBlock("water")), material: quadMat, position: vec3.create() }),
-			// ^^ Useful for held object logic 
+		warmth.update = function(elapsed) {
+			let exposureFactor = mapShelterToExposureFactor(warmth.shelter);
+			let bodyWarmth = mapBodyTemperatureToWarmingRate(warmth.bodyTemperature);
+			let cooling = coolingRatePerDegree * exposureFactor * (warmth.bodyTemperature - warmth.airTemperature);
+			warmth.bodyTemperature += (bodyWarmth - cooling) * elapsed;
 
-			let playerConfig = {
-				world: world,
-				vorld: vorld,
-				gameConfig: config,
-				vorldController: vorldController,
-				scene: scene,
-				position: spawnPoint,
-				quad: null,
-				camera: camera,
-				size: [ 0.75, 2, 0.75 ], // BUG: If you use size 0.8 - you can walk through blocks at axis = 7 when moving from axis = 8.
-				stepHeight: 0.51,
-				placementDistance: 5.5 + Math.sqrt(3),
-				removalDistance: 5.5,
-				enableCreativeMode: debug,
-				onBlockPlaced: (block, x, y, z) => { 
-					/* TODO: update any game logic based on placement */
-				},
-				onBlockRemoved: (block, x, y, z) => {
-					/* TODO: update any game logic based on placement */
-				},
-			};
-			// Massive Player!
-			// playerConfig.size = [ 4, 8, 4];
-			// playerConfig.stepHeight = 2.01;
-			// Tiny Player
-			// playerConfig.size = [ 0.25, 0.5, 0.25 ];
-			// playerConfig.stepHeight = 0.26;
-			player = Player.create(playerConfig);
+			if (vec3.sqrLen(player.localInputVector) > 0.0001) {
+				player.bodyTemperature += 0.01 * elapsed;
+			}
 
-			// TODO: Trigger this from a user gesture so we can request pointer lock here and then...
-			// add a pause menu so we can get it back on clicking resume if we esc to remove it
+			if (!warmth.hasDied && warmth.bodyTemperature < 35.0) {
+				warmth.hasDied = true;
+				alert("You died from the cold"); 
+				// TODO: Disable input and respawn
+			}
+		};
+
+		playerEntity.addComponent("warmth", warmth);
+
+		world.entities.push(playerEntity);
+
+		return player;
 	};
 
 	let spawnModelEntity = (modelId, position) => {
