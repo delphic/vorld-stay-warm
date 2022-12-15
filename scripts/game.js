@@ -174,7 +174,6 @@ module.exports = (function(){
 			for (let i = 0, l = world.heatSources.length; i < l; i++) {
 				warmth.airTemperature += world.heatSources[i].getHeat(player.position); 
 			}
-			console.log(warmth.airTemperature)
 
 			let exposureFactor = mapShelterToExposureFactor(warmth.shelter);
 			let bodyWarmth = mapBodyTemperatureToWarmingRate(warmth.bodyTemperature);
