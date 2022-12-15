@@ -21,7 +21,7 @@ module.exports = (function(){
 	let vorldController = null;
 
 	let vorld = null;
-	let world = { boxes: [], entities: [] };
+	let world = { boxes: [], entities: [], heatSources: [] };
 	let player = null;
 
 	let winMachine = null;
@@ -56,11 +56,15 @@ module.exports = (function(){
 				for (let i = 0; i < 3; i++) {
 					spawnModelEntity("core", [ -8 + 8 * i, 0, 8 ]).addComponent("carriable", {});
 					let entity = spawnModelEntity("powered_machine", [-2 + 2 * i, 0, 16 ]);
+					world.heatSources.push(createHeatSource(vec3.clone(entity.transform.position), 16, 30));
 					let socket = { transform: entity.transform, filled: false }
 					entity.addComponent("socket", socket);
 					machine.sockets.push(socket);
 				}
 				winMachine = machine;
+
+				world.heatSources.push(createHeatSource([0, 1, 0], 16, 40));
+
 			},
 			(stage, count, total) => { /* progress! */ });
 	};
@@ -161,6 +165,17 @@ module.exports = (function(){
 
 		warmth.update = function(elapsed) {
 			warmth.shelter = calculateShelter(vorld, player.position);
+			warmth.airTemperature = 15 * warmth.shelter; 
+			// ^^ For now just have sheltered areas warmer
+			// We could probably do something more clever with shade / sunlight level and time of day vs. shelter
+			// (i.e. in sunlight slightly warmer, though more exposed), would be better once shelter is moved to casting
+			// method instead of local sunlight deltas.
+
+			for (let i = 0, l = world.heatSources.length; i < l; i++) {
+				warmth.airTemperature += world.heatSources[i].getHeat(player.position); 
+			}
+			console.log(warmth.airTemperature)
+
 			let exposureFactor = mapShelterToExposureFactor(warmth.shelter);
 			let bodyWarmth = mapBodyTemperatureToWarmingRate(warmth.bodyTemperature);
 			let cooling = coolingRatePerDegree * exposureFactor * (warmth.bodyTemperature - warmth.airTemperature);
@@ -342,6 +357,27 @@ module.exports = (function(){
 			}
 		}
 		return result;
+	};
+
+	let createHeatSource = (position, radius, intensity) => {
+		let castDirection = [];
+		let hitPoint = [];
+		return {
+			position: position,
+			raidus: radius,
+			intensity: intensity,
+			getHeat: (from) => {
+				let sqrDist = vec3.sqrDist(position, from);
+				if (sqrDist < radius * radius) {
+					vec3.subtract(castDirection, position, from);
+					vec3.normalize(castDirection, castDirection);
+					if (!Vorld.Physics.raycast(hitPoint, vorld, from, castDirection, Math.sqrt(sqrDist))) {
+						return intensity / Math.max(sqrDist, 1);
+					}
+				}
+				return 0;
+			}
+		};
 	};
 
 	exports.init = function({ canvas, gameConfig }) {
