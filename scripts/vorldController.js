@@ -511,28 +511,35 @@ module.exports = (function(){
 	// TODO: May want to add emissive material / or take emissive texture map
 	// TODO: Will need dynamic material for held objects if using the voxel shader for held objects
 	let skyColor = [ 0, 0, 0 ];
-	exports.createVorldMaterials = function(image) {
+	exports.createVorldMaterials = function(image, emissiveImage) {
 		let shaderConfig = VoxelShader.create();
+		let emissiveShaderConfig = VoxelShader.createEmissive();
 		let cutoutShaderConfig = VoxelShader.create(0.5); 
 		// Cutout threshold needs to be 0.5 to prevent the shader 'evapourating' at distance, 
 		// however this also requires a mag filter of nearest pixel to remove visible lines at edges
 		let shader = Fury.Shader.create(shaderConfig);
+		let emissiveShader = Fury.Shader.create(emissiveShaderConfig);
 		let cutoutShader = Fury.Shader.create(cutoutShaderConfig);
 
 		let targetWidth = 128; // => Scale 8 for 16 pixels, 4 for 32 pixels, 2 for 64 pixels, 1 for 128 pixels+
 		let scale = Math.ceil(targetWidth / image.width);  
 		let upscaled = Fury.Utils.createScaledImage({ image: image, scale: scale });
+		let upscaledEmissive = Fury.Utils.createScaledImage({ image: emissiveImage, scale: scale });
 		let textureSize = upscaled.width, textureCount = Math.round(upscaled.height / upscaled.width);
 		let textureConfig = { source: upscaled, width: textureSize, height: textureSize, imageCount: textureCount, clamp: true };
 		textureConfig.quality = "pixel";
 		let textureArray = Fury.Texture.createTextureArray(textureConfig);
 		textureConfig.quality = "low";
 		let nearestFilteredTextureArray = Fury.Texture.createTextureArray(textureConfig);
+
+		textureConfig.quality = "pixel";
+		textureConfig.source = upscaledEmissive;
+		let textureArrayEmissive = Fury.Texture.createTextureArray(textureConfig);
 		
 		let result = {};
 		result.material = Fury.Material.create({
-			shader: shader,
-			texture: textureArray,
+			shader: emissiveShader,
+			textures: [ textureArray, textureArrayEmissive ],
 			properties: { "fogColor": vec3.clone(skyColor), "fogDensity": 0.005, "ambientMagnitude": 0.75, "directionalMagnitude": 0.5 }
 		});
 		result.cutoutMaterial = Fury.Material.create({

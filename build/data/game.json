@@ -149,6 +149,7 @@
 	"meshingConfig": {
 		"atlas": {
 			"src": "images/atlas.png",
+			"srcEmissive": "images/atlas-emissive.png",
 			"textureArraySize": 34,
 			"blockToTileIndex": [
 				null,

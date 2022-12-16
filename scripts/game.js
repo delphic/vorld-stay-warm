@@ -14,7 +14,6 @@ module.exports = (function(){
 
 	let debug = true;
 	let config = null;
-	let atlasImage = null;
 
 	let camera, cameraRatio = 1.0;
 	let scene;
@@ -112,7 +111,7 @@ module.exports = (function(){
 			stepHeight: 0.51,
 			placementDistance: 5.5 + Math.sqrt(3),
 			removalDistance: 5.5,
-			enableCreativeMode: false,
+			enableCreativeMode: true,
 			onBlockPlaced: (block, x, y, z) => { 
 				/* TODO: update any game logic based on placement */
 			},
@@ -419,19 +418,28 @@ module.exports = (function(){
 		};
 
 		assetsLoading++;
-		atlasImage = new Image();
-		atlasImage.onload = function() {
-			let materials = VorldController.createVorldMaterials(atlasImage);
-			vorldController = VorldController.create({
-				debug: debug,
-				vorldConfig: config,
-				scene: scene,
-				materials: materials,
-				workerSrc: "scripts/vorld-worker.js"
-			});
+		let imagesLoading = 2;
+		let atlasImage = new Image();
+		let emissiveAtlasIamge = new Image();
+		let onImageLoaded = function() {
+			imagesLoading--;
+			if (imagesLoading == 0) {
+				let materials = VorldController.createVorldMaterials(atlasImage, emissiveAtlasIamge);
+				vorldController = VorldController.create({
+					debug: debug,
+					vorldConfig: config,
+					scene: scene,
+					materials: materials,
+					workerSrc: "scripts/vorld-worker.js"
+				});
+			}
 			assetLoaded();
 		};
+
+		atlasImage.onload = onImageLoaded;
+		emissiveAtlasIamge.onload = onImageLoaded;
 		atlasImage.src = config.meshingConfig.atlas.src;
+		emissiveAtlasIamge.src = config.meshingConfig.atlas.srcEmissive; 
 
 		assetsLoading++;
 		Audio.fetchAudio(Object.values(config.sfx).map(x => x.uri), assetLoaded);
