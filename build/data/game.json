@@ -23,7 +23,16 @@
 		"tulip": 19,
 		"foxglove_top": 20,
 		"foxglove_bottom": 21,
-		"snow": 22
+		"snow": 22,
+		"metal": 23,
+		"stub_light": 24,
+		"stub_light_rink": 25,
+		"antenna": 26,
+		"snow_layer": 27,
+		"strip_light": 28,
+		"strip_light_end": 29,
+		"door_metal": 30,
+		"button_metal": 31
 	},
 	"blockConfig": [
 		{ "name": "air", "isOpaque": false, "isSolid": false },
@@ -48,7 +57,16 @@
 		{ "name": "tulip", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
 		{ "name": "foxglove_top", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
 		{ "name": "foxglove_bottom", "isOpaque": false, "isSolid": false, "material": "grass", "useCutout": true, "mesh": "longGrass", "attenuation": 2 },
-		{ "name": "snow", "isOpaque": true, "isSolid": true, "material": "snow" }
+		{ "name": "snow", "isOpaque": true, "isSolid": true, "material": "snow" },
+		{ "name": "metal", "isOpaque": true, "isSolid": true, "material": "metal" },
+		{ "name": "stub_light", "isOpaque": false, "isSolid": true, "material": "metal", "mesh": "stub", "light": 8, "placement": "up_normal" },
+		{ "name": "stub_light_rink", "isOpaque": false, "isSolid": true, "material": "metal", "mesh": "stub", "light": 6, "placement": "up_normal" },
+		{ "name": "antenna", "isOpaque": false, "isSolid": true, "material": "metal", "mesh": "tube", "placement": "up_normal", "rotateTextureCoords": true },
+		{ "name": "snow_layer", "isOpaque": false, "isSolid": true, "material": "snow", "mesh": "layerBlock", "placement": "up_normal" },
+		{ "name": "strip_light", "isOpaque": false, "isSolid": true, "material": "stone", "mesh": "surfaceBlock", "light": 8, "rotateTextureCoords": true, "placement": "front_normal" },
+		{ "name": "strip_light_end", "isOpaque": false, "isSolid": true, "material": "stone", "mesh": "surfaceBlock", "light": 8, "rotateTextureCoords": true, "placement": "front_normal" },
+		{ "name": "door_metal", "isOpaque": true, "isSolid": true, "material": "metal", "placement": "front_facing" },
+		{ "name": "button_metal", "isOpaque": false, "isSolid": false, "material": "metal", "mesh": "button", "placement": "up_normal", "interactable": true }
 	],
 	"materials": {
 		"snow": {
@@ -58,6 +76,15 @@
 				"run": [ "sfx.grass_run_0", "sfx.grass_run_1", "sfx.grass_run_2", "sfx.grass_run_3" ],
 				"walk": [ "sfx.grass_walk_0", "sfx.grass_walk_1", "sfx.grass_walk_2", "sfx.grass_walk_3" ],
 				"sneak": [ "sfx.grass_sneak_0", "sfx.grass_sneak_1", "sfx.grass_sneak_2", "sfx.grass_sneak_3" ]
+			}
+		},
+		"metal": {
+			"sfx": {
+				"add": [ "sfx.stone_run_0", "sfx.stone_run_1", "sfx.stone_run_2", "sfx.stone_run_3" ],
+				"remove": [ "sfx.stone_walk_0", "sfx.stone_walk_1", "sfx.stone_walk_2", "sfx.stone_walk_3" ],
+				"run": [ "sfx.stone_run_0", "sfx.stone_run_1", "sfx.stone_run_2", "sfx.stone_run_3" ],
+				"walk": [ "sfx.stone_walk_0", "sfx.stone_walk_1", "sfx.stone_walk_2", "sfx.stone_walk_3" ],
+				"sneak": [ "sfx.stone_sneak_0", "sfx.stone_sneak_1", "sfx.stone_sneak_2", "sfx.stone_sneak_3" ]
 			}
 		},
 		"grass": {
@@ -122,7 +149,7 @@
 	"meshingConfig": {
 		"atlas": {
 			"src": "images/atlas.png",
-			"textureArraySize": 29,
+			"textureArraySize": 34,
 			"blockToTileIndex": [
 				null,
 				{ "side": 3 },
@@ -146,7 +173,16 @@
 				{ "side": 25 },
 				{ "side": 26 },
 				{ "side": 27 },
-				{ "side": 28 }
+				{ "side": 28 },
+				{ "side": 32 },
+				{ "side": 14 },
+				{ "side": 21 },
+				{ "side": 29 },
+				{ "side": 28 },
+				{ "top": 32, "bottom": 32, "forward": 31, "back": 31, "right": 32, "left": 32 },
+				{ "top": 32, "bottom": 32, "forward": 30, "back": 30, "right": 32, "left": 32 },
+				{ "top": 32, "bottom": 32, "forward": 33, "back": 33, "right": 32, "left": 32 },
+				{ "side": 32 }
 			]
 		}
 	},

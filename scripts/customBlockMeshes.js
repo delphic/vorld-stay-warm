@@ -13,6 +13,12 @@ module.exports = (function(){
 		// We'd probably be better off if the worker took the id rather than assigning the mesh data in like this
 		// Would be less data to copy to the worker
 		switch (blockDef.mesh) {
+			case "stub":
+				return stubJson;
+			case "button":
+				return buttonJson;
+			case "tube":
+				return tubeJson;
 			case "torch":
 				return torchJson;
 			case "halfCube":
@@ -23,6 +29,8 @@ module.exports = (function(){
 				return longGrassJson;
 			case "surfaceBlock":
 				return surfaceBlockJson;
+				case "layerBlock":
+					return layerBlockJson;
 			default:
 				console.error("Unexpected mesh id: " + blockDef.mesh);
 				return null;
@@ -31,6 +39,12 @@ module.exports = (function(){
 
 	// Custom Mesh Definitions
 	let halfCubeJson = VorldPrimitives.createCuboidMeshJson(0.0, 1.0, 0.0, 0.5, 0.0, 1.0);
+
+	let stubJson = VorldPrimitives.createCuboidMeshJson(6.0/16.0, 10.0/16.0, 0.0, 4.0/16.0, 6.0/16.0, 10.0/16.0)
+
+	let buttonJson = VorldPrimitives.createCuboidMeshJson(6.0/16.0, 10.0/16.0, 0.0, 2.0/16.0, 6.0/16.0, 10.0/16.0)
+
+	let tubeJson = VorldPrimitives.createCuboidMeshJson(6.0/16.0, 10.0/16.0, 0.0, 1.0, 6.0/16.0, 10.0/16.0);
 
 	let torchJson = VorldPrimitives.createCuboidMeshJson(0.4, 0.6, 0.0, 0.8, 0.4, 0.6);
 
@@ -252,6 +266,11 @@ module.exports = (function(){
 		0.0, 1.0,
 		0.0, 1.0,
 		0.0, 1.0 / 16.0);
+
+	let layerBlockJson = VorldPrimitives.createCuboidMeshJson(
+		0.0, 1.0,
+		0.0, 1.0/16.0,
+		0.0, 1.0);
 
 	return exports;
 })();
